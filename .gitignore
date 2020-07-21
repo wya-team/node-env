@@ -1,0 +1,88 @@
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# compiled output
+tmp
+lib
+demo
+dist
+# build
+temp
+.temp
+
+# dependencies
+node_modules
+
+# IDEs and editors
+.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+.history/
+
+# IDE - VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# misc
+.sass-cache
+connect.lock
+coverage/
+libpeerconnection.log
+npm-debug.log
+testem.log
+typings
+
+# e2e
+e2e/*.js
+e2e/*.map
+
+# System Files
+.DS_Store
+Thumbs.db
+.idea
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+.apdisk
+.AppleDouble
+.LSOverride
+desktop.ini
+
+
+# others
+tests/coverage
+.npm
+.yarn-integrity
+
+# error
+logs
+yarn-error.log
+yarn-debug.log*
+npm-error.log
+*.log
+
+# user config
+config/user.config.js
+user.config.js
+# config
+views/config.json
+public/upload
+
+# lock
+yarn.lock
+package-lock.json
+
+.db
+

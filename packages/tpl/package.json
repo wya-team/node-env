@@ -1,0 +1,30 @@
+{
+  "name": "@wya/repo-tpl",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "main": "dist/index.js",
+  "files": [
+    "dist/**"
+  ],
+  "scripts": {
+    "test": "mocha --require esm ./src/__tests__/*.test.js",
+    "test:watch": "npm run test -- --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://xxx/wapi"
+  },
+  "keywords": [],
+  "author": "wya-team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://xxx/wapi/issues"
+  },
+  "homepage": "https://xxx/wapi#readme",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "esm": "^3.2.25",
+    "mocha": "^7.0.1"
+  }
+}

@@ -1,0 +1,17 @@
+version: '3.1'
+
+services:
+    mongo:
+        image: mongo:4.2.8
+        # use admin -> db.auth(USERNAME, PASSWORD)
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: mongo-admin
+            MONGO_INITDB_ROOT_PASSWORD: 123456
+        # TODO: 集群
+        ports:
+            - '27017:27017'
+        # mkdir .db
+        volumes:
+            - "$PWD/.db:/data/db"
+            - "$PWD/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js"
+        restart: always

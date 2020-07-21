@@ -4,6 +4,7 @@ const commitRE = /^(revert: )?(fix|feat|docs|perf|test|types|build|chore|refacto
 const mergeRE = /Merge branch /;
 
 const gitParams = process.env.HUSKY_GIT_PARAMS;
+
 const commitMsg = fs.readFileSync(gitParams, 'utf-8').trim();  // eslint-disable-line
 
 if (!commitRE.test(commitMsg) && !mergeRE.test(commitMsg)) {

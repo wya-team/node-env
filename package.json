@@ -1,59 +1,69 @@
 {
-  "name": "@wya/repo",
+  "name": "@wya/node-env",
   "version": "1.0.0",
   "private": true,
   "description": "",
-  "main": "index.js",
+  "main": "",
   "workspaces": [
-    "packages/*",
-    "client",
-    "server"
+    "packages/*"
   ],
   "scripts": {
-    "start": "yarn workspace @wya/repo-server run start",
-    "dev": "yarn workspace @wya/repo-server run dev",
-    "dev:client": "yarn workspace @wya/repo-server run dev:client",
-    "dev:server": "yarn workspace @wya/repo-server run dev:server",
-    "test": "yarn workspace @wya/repo-server run test",
-    "test:watch": "yarn workspace @wya/repo-server run test:watch",
-    "build": "yarn workspace @wya/repo-client run build",
-    "build:dev": "yarn workspace @wya/repo-client run build:dev",
-    "build:client": "yarn workspace @wya/repo-client run build:client",
-    "build:server": "yarn workspace @wya/repo-client run build:server",
-    "bootstrap": "lerna clean --yes && lerna bootstrap --loglevel silly",
-    "start:docker": "cd ./assist/docker && docker-compose up --detach",
-    "remove:docker": "cd ./assist/docker && docker-compose down",
-    "clean:docker": "rm -rf ./assist/docker/.db/* && npm run remove:docker"
-  },
-  "scripts-info": {
-    "start": "【后端 - Production】以生产环境方式启动，需要提前执行 build",
-    "dev:server": "【后端 - Development】运行后端开发服务器",
-    "dev:client": "【前端 - Development】运行前端开发服务器",
-    "test": "【后端】单元测试",
-    "build": "【前端 - Production】生产环境静态资源构建打包",
-    "build:dev": "【后端 - Development】开发环境静态资源构建打包",
-    "build:client": "【前端】生成`vue-ssr-client-manifest.json`以及对应静态资源",
-    "build:server": "【前端】生成`vue-ssr-server-bundle.json` 用于SSR"
+    "build:packages": "cross-env NODE_ENV=production node --max_old_space_size=8192 ./scripts/build.js",
+    "bootstrap": "lerna clean --yes && lerna bootstrap --loglevel silly && cd templates/ && npm run bootstrap",
+    "pub": "npm run build:packages && lerna publish",
+    "pub:no-tag": "npm run pub -- --no-git-tag-version",
+    "lint": "esw packages/ --ext .js --color",
+    "lint:fix": "npm run lint -- --fix",
+    "lint:watch": "npm run lint -- --fix --watch",
+    "test": "node scripts/unit-test.js",
+    "link": "lerna exec --scope @wya/node-cli -- yarn link",
+    "unlink": "lerna exec --scope @wya/node-cli -- yarn unlink",
+    "dev": "cd templates && npm run dev",
+    "build": "cd templates && npm run build"
   },
   "dependencies": {},
   "devDependencies": {
-    "husky": "^4.2.5",
-    "lerna": "^3.22.1",
-    "lint-staged": "^10.2.11"
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.10.5",
+    "@babel/helper-module-imports": "^7.10.4",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/plugin-transform-regenerator": "^7.10.4",
+    "@babel/plugin-transform-runtime": "^7.10.5",
+    "@babel/preset-env": "^7.10.4",
+    "@rollup/plugin-babel": "^5.0.3",
+    "@rollup/plugin-buble": "^0.21.3",
+    "@rollup/plugin-commonjs": "^13.0.0",
+    "@rollup/plugin-node-resolve": "^8.0.1",
+    "@rollup/plugin-replace": "^2.3.3",
+    "babel-eslint": "^10.1.0",
+    "cross-env": "^7.0.0",
+    "eslint": "^7.4.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-babel": "^5.3.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-markdown": "^1.0.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "eslint-watch": "^7.0.0",
+    "file-loader": "^6.0.0",
+    "husky": "^4.2.3",
+    "lerna": "^3.20.2",
+    "lint-staged": "^10.0.7",
+    "rollup": "^2.17.1",
+    "rollup-plugin-uglify": "^6.0.4"
   },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
-      "commit-msg": "node ./assist/commit-lint"
+      "commit-msg": "node ./scripts/commit-lint"
     }
   },
   "lint-staged": {
-    "{client,server}/**/*.{js,jsx,vue}": [
+    "{packages}/*/src/**/*.{js,vue}": [
       "esw --fix",
       "git add"
     ],
-    "*.scss": [
-      "stylelint --fix --syntax scss",
+    "*.md": [
+      "esw --ext '.md' --fix",
       "git add"
     ]
   }

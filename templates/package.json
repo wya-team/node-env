@@ -1,0 +1,60 @@
+{
+  "name": "@wya/repo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "main": "index.js",
+  "workspaces": [
+    "packages/*",
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "bootstrap": "lerna clean --yes && lerna bootstrap --loglevel silly",
+    "start": "yarn workspace @wya/repo-server run start",
+    "dev": "yarn workspace @wya/repo-server run dev",
+    "dev:client": "yarn workspace @wya/repo-server run dev:client",
+    "dev:server": "yarn workspace @wya/repo-server run dev:server",
+    "test": "yarn workspace @wya/repo-server run test",
+    "test:watch": "yarn workspace @wya/repo-server run test:watch",
+    "build": "yarn workspace @wya/repo-client run build",
+    "build:dev": "yarn workspace @wya/repo-client run build:dev",
+    "build:client": "yarn workspace @wya/repo-client run build:client",
+    "build:server": "yarn workspace @wya/repo-client run build:server",
+    "start:docker": "cd ./assist/docker && docker-compose up --detach",
+    "remove:docker": "cd ./assist/docker && docker-compose down",
+    "clean:docker": "rm -rf ./assist/docker/.db/* && npm run remove:docker"
+  },
+  "scripts-info": {
+    "start": "【后端 - Production】以生产环境方式启动，需要提前执行 build",
+    "dev:server": "【后端 - Development】运行后端开发服务器",
+    "dev:client": "【前端 - Development】运行前端开发服务器",
+    "test": "【后端】单元测试",
+    "build": "【前端 - Production】生产环境静态资源构建打包",
+    "build:dev": "【后端 - Development】开发环境静态资源构建打包",
+    "build:client": "【前端】生成`vue-ssr-client-manifest.json`以及对应静态资源",
+    "build:server": "【前端】生成`vue-ssr-server-bundle.json` 用于SSR"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "husky": "^4.2.5",
+    "lerna": "^3.22.1",
+    "lint-staged": "^10.2.11"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "node ./assist/commit-lint"
+    }
+  },
+  "lint-staged": {
+    "{client,server}/**/*.{js,jsx,vue}": [
+      "esw --fix",
+      "git add"
+    ],
+    "*.scss": [
+      "stylelint --fix --syntax scss",
+      "git add"
+    ]
+  }
+}

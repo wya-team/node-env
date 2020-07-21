@@ -1,0 +1,6 @@
+dist/**
+templates/**
+packages/*/node_modules/**
+packages/*/dist/**
+**/*.css
+**/*.html

@@ -23,7 +23,7 @@ module.exports = merge(base, {
 	 * webpack.base.config.js 已设置 alias config
 	 */
 	externals: nodeExternals({
-		whitelist: [
+		allowlist: [
 			/\.css$/,
 			'config'
 		]

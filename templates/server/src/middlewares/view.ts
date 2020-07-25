@@ -1,13 +1,18 @@
-const fs = require('fs-extra');
-const path = require('path');
-const { createBundleRenderer } = require('vue-server-renderer');
-const LRU = require('lru-cache');
-const Cookies = require('universal-cookie');
+import fs from 'fs-extra';
+import path from 'path';
+import Koa, { Context } from 'koa';
+import { 
+	createBundleRenderer, 
+	BundleRenderer,
+	BundleRendererOptions 
+} from 'vue-server-renderer';
+import LRU from 'lru-cache';
+import Cookies from 'universal-cookie';
 
-const resolve = file => path.resolve(__dirname, file);
-const isProd = process.env.NODE_ENV === 'production';
+const resolve = (file: string): string => path.resolve(__dirname, file);
+const isProd: boolean = process.env.NODE_ENV === 'production';
 
-const resolvePackage = (source) => {
+const resolvePackage = (source: string): string | void => {
 	let nms = [
 		path.resolve(__dirname, '../../node_modules', source),
 		path.resolve(__dirname, '../../../node_modules', source)
@@ -25,7 +30,7 @@ const resolvePackage = (source) => {
 /**
  * https://github.com/vuejs/vue/blob/dev/packages/vue-server-renderer/README.md#why-use-bundlerenderer
  */
-function createRenderer(bundle, options) {
+const createRenderer = (bundle: BundleRenderer, options?: BundleRendererOptions): BundleRenderer => {
 	return createBundleRenderer(
 		bundle, 
 		{
@@ -40,14 +45,16 @@ function createRenderer(bundle, options) {
 			runInNewContext: false
 		}
 	);
-}
+};
 
-module.exports = class ViewMiddleware {
-	constructor(app) {
+export class View {
+	public getHTML: (params: any) => Promise<string> | void;
+
+	constructor(app: Koa) {
 
 		const templatePath = resolvePackage('@wya/repo-client/src/static/index.tpl.html');
 		const template = fs.readFileSync(templatePath, 'utf-8'); // eslint-disable-line
-		const run = isProd ? this._build : this._dev;
+		const run = isProd ? this.build : this.dev;
 
 		this.getHTML = run(app, template);
 	}
@@ -55,14 +62,14 @@ module.exports = class ViewMiddleware {
 	/**
 	 * 使用热更新, 文件修改时，会重新创建renderer
 	 */
-	_dev(app, template) {
-		const setupDevServer = require('@wya/repo-client/build/setup-dev-server');
+	private dev(app: Koa, template: string) {
+		const setupDevServer = require('@wya/repo-client/build/setup-dev-server'); // eslint-disable-line
 
 		// HRM时，renderer会利用回调重置
 		let renderer;
 		const { ready, server } = setupDevServer(
 			template, 
-			(...rest) => renderer = createRenderer(...rest)
+			(bundle, options) => (renderer = createRenderer(bundle, options))
 		);
 
 		// 重新封装一层，开发模式下静态资源，如访问/dist/app.js, 由此输出内容资源
@@ -76,22 +83,22 @@ module.exports = class ViewMiddleware {
 			}
 		});
 
-		return ctx => ready.then(() => renderer.renderToString(ctx));
+		return (params) => ready.then(() => renderer.renderToString(params));
 	}
 
 	/**
 	 * 使用生成好的文件利用createRenderer生成html
 	 */
-	_build(app, template) {
-		const bundle = require('@wya/repo-client/dist/vue-ssr-server-bundle.json');
-		const clientManifest = require('@wya/repo-client/dist/vue-ssr-client-manifest.json');
+	private build(app: Koa, template: string) {
+		const bundle = require('@wya/repo-client/dist/vue-ssr-server-bundle.json'); // eslint-disable-line
+		const clientManifest = require('@wya/repo-client/dist/vue-ssr-client-manifest.json'); // eslint-disable-line
 		const renderer = createRenderer(bundle, { template, clientManifest });
-		return (ctx) => renderer.renderToString(ctx);
+		return (params) => renderer.renderToString(params);
 	}
 
 	// 操作ctx.body, 不适用next
 	render() {
-		return async (ctx) => {
+		return async (ctx: Context) => {
 			try {
 				ctx.set('Content-Type', 'text/html');
 
@@ -110,4 +117,4 @@ module.exports = class ViewMiddleware {
 			}
 		};
 	}
-};
+}

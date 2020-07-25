@@ -48,7 +48,11 @@
     }
   },
   "lint-staged": {
-    "{client,server}/**/*.{js,jsx,vue}": [
+    "{client}/**/*.{js,jsx,vue}": [
+      "esw --fix",
+      "git add"
+    ],
+    "{server}/**/*.{ts,js}": [
       "esw --fix",
       "git add"
     ],

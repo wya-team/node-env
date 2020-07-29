@@ -29,6 +29,7 @@
   "author": "deot",
   "license": "MIT",
   "dependencies": {
+    "config": "^3.3.1",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.12.2",
     "fs-extra": "^9.0.0",

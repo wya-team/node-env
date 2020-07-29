@@ -5,10 +5,9 @@ import Koa from 'koa';
 import { Container } from 'typedi';
 import { useKoaServer, useContainer } from 'routing-controllers';
 import bodyParser from 'koa-bodyparser';
+import config from 'config';
 
-import * as controllers from './src/controllers';
-import * as interceptors from './src/routing-extends/interceptors';
-import * as middlewares from './src/routing-extends/middlewares';
+import { apiOptions, fakeOptions } from './src/routing';
 
 import { View } from './src/middlewares/view';
 
@@ -19,20 +18,24 @@ export default (async (): Promise<Koa> => {
 
 	let app: Koa = new Koa();
 
+	// koa-middleware
 	app.use(bodyParser());
-	app = useKoaServer<Koa>(app, {
-		controllers: Object.keys(controllers).map(name => controllers[name]),
-		interceptors: Object.keys(interceptors).map(name => interceptors[name]),
-		middlewares: Object.keys(middlewares).map(name => middlewares[name]),
-		routePrefix: '/api',
-	});
-	
-	const middleware = new View(app).render();
 
-	app.use(middleware);
-	app.listen(3000, () => {
-		console.log('server success');		
-	});
+	// routes
+	app = useKoaServer<Koa>(app, fakeOptions);
+	app = useKoaServer<Koa>(app, apiOptions);
+	
+	// 区分测试时调用
+	if (!module.parent) {
+		const port = config.get('port');
+		const host = config.get('host');
+		const middleware = new View(app).render();
+
+		app.use(middleware);
+		app.listen(port, host, () => {
+			console.log(`server started at http://${host}:${port}`);	
+		});
+	}
 
 	return app;
 })();

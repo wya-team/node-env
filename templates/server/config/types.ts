@@ -1,3 +1,4 @@
+import bodyParser from 'koa-bodyparser';
 /**
  * 数据库相关配置
  */
@@ -23,7 +24,7 @@ export interface BlackList {
     ips: string[];
 }
 
-export interface UploadExire {
+export interface UploadExpire {
 	types: string[];
 	day: number;
 }
@@ -34,7 +35,7 @@ export interface Upload {
     types: string[];
     size: number;
     dir: string;
-    expire: UploadExire;
+    expire: UploadExpire;
 }
 
 /**
@@ -47,4 +48,6 @@ export interface Config {
 	jwt: JWT;
     blackList: BlackList;
 	upload: Upload;
+    // koa
+    bodyParser: bodyParser.Options;
 }

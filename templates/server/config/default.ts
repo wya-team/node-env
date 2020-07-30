@@ -29,6 +29,12 @@ const defaultConfig: Config = {
 			day: -1
 		}
 	},
+	// koa-bodyparser
+	bodyParser: {
+		jsonLimit: '2mb', 
+		formLimit: '1mb', 
+		textLimit: '1mb' 
+	}
 };
 
 export default defaultConfig;

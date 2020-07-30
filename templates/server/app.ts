@@ -1,25 +1,43 @@
 // shim
 import 'reflect-metadata';
 
-import Koa from 'koa';
+import Koa, { Middleware } from 'koa';
+import path from 'path';
 import { Container } from 'typedi';
 import { useKoaServer, useContainer } from 'routing-controllers';
 import bodyParser from 'koa-bodyparser';
+import staticCache from 'koa-static-cache';
+import favicon from 'koa-favicon';
 import config from 'config';
 
 import { apiOptions, fakeOptions } from './src/routing';
 
 import { View } from './src/middlewares/view';
 
-export default (async (): Promise<Koa> => {
+const resolve = (...args: string[]): string => path.resolve(__dirname, ...args);
 
+const serve = (prefix: string, filePath: string, baseConfig?: boolean): Middleware => {
+	return staticCache(baseConfig ? resolve('config', filePath) : resolve(filePath), {
+		prefix,
+		gzip: true,
+		dynamic: true,
+		maxAge: 60 * 60 * 24 * 30
+	});
+};
+
+export default (async (): Promise<Koa> => {
 	// 必须在所有routing-controllers操作前设置容器
 	useContainer(Container);
 
 	let app: Koa = new Koa();
 
 	// koa-middleware
-	app.use(bodyParser());
+	app
+		.use(favicon(resolve('./public/images/icon.png')))
+		.use(serve('/dist', '../client/dist'))
+		.use(serve('/public', './public'))
+		.use(serve('/upload', config.get('upload.dir'), true))
+		.use(bodyParser({ ...config.get('bodyParser') }));
 
 	// routes
 	app = useKoaServer<Koa>(app, fakeOptions);

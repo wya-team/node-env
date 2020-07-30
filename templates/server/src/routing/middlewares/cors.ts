@@ -1,5 +1,8 @@
 import { KoaMiddlewareInterface, Middleware } from 'routing-controllers';
 
+/**
+ * TODO: 用koa-cors代替
+ */
 @Middleware({ type: 'before' })
 export class CORSMiddleware implements KoaMiddlewareInterface {
 	async use(context: any, next: (err?: any) => any): Promise<any> {

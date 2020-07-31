@@ -94,12 +94,16 @@ module.exports = {
 							]
 						}
 					}
+				],
+				// 忽略全局的样式
+				exclude: [
+					resolve("../src/css")
 				]
 			},
 			{
 				test: /\.(css|scss)$/,
 				use: [
-					MiniCssExtractPlugin.loader, 
+					isProd ? MiniCssExtractPlugin.loader : 'vue-style-loader', 
 					'css-loader',
 					postcssLoader,
 					'sass-loader'

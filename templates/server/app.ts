@@ -12,9 +12,9 @@ import favicon from 'koa-favicon';
 import config from 'config';
 
 import { apiOptions, fakeOptions } from './src/routing';
+import { USE_CLIENT_SSR } from './src/constants';
 
 import * as Middlewares from './src/middlewares';
-import { View } from './src/middlewares/view';
 import { Clean } from './src/schedules';
 
 const resolve = (...args: string[]): string => path.resolve(__dirname, ...args);
@@ -58,9 +58,13 @@ export default (async (): Promise<Koa> => {
 	if (!module.parent) {
 		const port = config.get('port');
 		const host = config.get('host');
-		const middleware = new View(app).render();
+		
+		if (USE_CLIENT_SSR) {
+			const { View } = require('./src/middlewares/view'); // eslint-disable-line
+			const middleware = new View(app).render();
+			app.use(middleware);
+		}
 
-		app.use(middleware);
 		app.listen(port, host, () => {
 			console.log(`server started at http://${host}:${port}`);	
 		});

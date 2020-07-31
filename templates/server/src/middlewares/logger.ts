@@ -36,6 +36,20 @@ class Logger {
 		let pinoOptions: Options = {
 			name: 'NODE_ENV',
 			level: process.env.NODE_ENV === 'test' ? 'silent' : /* istanbul ignore next */ 'info',
+
+			/**
+			 * ignore目前需要全匹配，带后续修复
+			 * https://github.com/pinojs/pino-http/pull/100
+			 */
+			// autoLogging: {
+			// 	ignorePaths: [],
+			// },
+
+			// 格式化输出
+			prettyPrint: {
+				crlf: process.env.NODE_ENV !== 'production',
+			},
+			
 			genReqId: req => req.headers['x-request-id'] || uuid.v4()
 		};
 

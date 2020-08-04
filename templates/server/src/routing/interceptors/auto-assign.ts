@@ -4,7 +4,7 @@ import { InterceptorInterface, Action, Interceptor } from 'routing-controllers';
 export class AutoAssignInterceptor implements InterceptorInterface {
 	intercept(action: Action, result: any): string {
 		if (typeof result === 'object') {
-			return JSON.stringify({ ...result, msg: 'ok', status: 1 });
+			return JSON.stringify({ msg: 'ok', status: 1, ...result });
 		}
 		return JSON.stringify({ status: 0, msg: result });
 	}

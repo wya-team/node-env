@@ -1,14 +1,22 @@
-import { Get, Ctx, JsonController, QueryParam } from 'routing-controllers';
+import { Get, Post, Ctx, JsonController, QueryParam } from 'routing-controllers';
 import { Context } from 'koa';
+import { Container } from 'typedi';
+import { UserService } from "../services"
 
 @JsonController()
 export class UserController {
-	constructor() {}
 
-	@Get('/user/basic')
-	async basic(@QueryParam('username') username: string): Promise<any> {
+	private userService: UserService;
+
+	constructor() {
+		this.userService = Container.get(UserService);
+	}
+
+	@Post('/user/reg')
+	async reg(@Ctx() ctx: Context): Promise<any> {
+		let user = await this.userService.newAndSave(ctx.request.body);
 		return {
-			msg: `hello basic: ${username}`
+			msg: 'success'
 		};
 	}
 

@@ -10,7 +10,8 @@
     "server"
   ],
   "scripts": {
-    "bootstrap": "lerna clean --yes && lerna bootstrap --loglevel silly",
+    "bootstrap": "lerna clean --yes && lerna bootstrap",
+    "bootstrap:no-cache": "rm -rf ./node_modules yarn.lock package-lock.json  && npm run bootstrap",
     "start": "yarn workspace @wya/repo-server run start",
     "dev": "yarn workspace @wya/repo-server run dev",
     "dev:client": "yarn workspace @wya/repo-server run dev:client",

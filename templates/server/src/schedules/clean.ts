@@ -5,7 +5,7 @@ import moment from 'moment';
 import _ from 'lodash';
 import { Upload } from '../../config/types';
 
-class Clean {
+export class Clean {
 	static init(): void {
 		this.dropFileSchedule();
 	}
@@ -38,5 +38,3 @@ class Clean {
 
 	}
 }
-
-export default Clean;

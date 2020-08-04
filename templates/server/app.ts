@@ -4,6 +4,8 @@ import 'reflect-metadata';
 import Koa, { Middleware } from 'koa';
 import path from 'path';
 import { Container } from 'typedi';
+import { Connection } from 'typeorm';
+
 import { useKoaServer, useContainer } from 'routing-controllers';
 import bodyParser from 'koa-bodyparser';
 import staticCache from 'koa-static-cache';
@@ -12,9 +14,8 @@ import favicon from 'koa-favicon';
 import config from 'config';
 
 import { apiOptions, fakeOptions } from './src/routing';
-import { USE_CLIENT_SSR } from './src/constants';
-
-import * as Middlewares from './src/middlewares';
+import { USE_CLIENT_SSR, USE_DATA_BASE } from './src/constants';
+import { Logger, XRequestId } from './src/middlewares';
 import { Clean } from './src/schedules';
 
 const resolve = (...args: string[]): string => path.resolve(__dirname, ...args);
@@ -28,7 +29,19 @@ const serve = (prefix: string, filePath: string, baseConfig?: boolean): Middlewa
 	});
 };
 
-export default (async (): Promise<Koa> => {
+export type DB = Connection | void;
+export interface Ready {
+	db: DB;
+	app: Koa;
+}
+
+let dbReady: Promise<DB> = Promise.resolve();
+// 连接接数据库
+if (USE_DATA_BASE) {
+	dbReady = require('./src/utils/db')?.default; // eslint-disable-line
+}
+
+const appReady = (async (): Promise<Koa> => {
 	// start
 	Clean.init();
 
@@ -46,8 +59,8 @@ export default (async (): Promise<Koa> => {
 		.use(serve('/dist', '../client/dist'))
 		.use(serve('/public', './public'))
 		.use(serve('/upload', config.get('upload.dir'), true))
-		.use(Middlewares.Logger())
-		.use(Middlewares.XRequestId())
+		.use(Logger.init())
+		.use(XRequestId.init())
 		.use(bodyParser({ ...config.get('bodyParser') }));
 
 	// routes
@@ -56,12 +69,12 @@ export default (async (): Promise<Koa> => {
 	
 	// 区分测试时调用
 	if (!module.parent) {
-		const port = config.get('port');
-		const host = config.get('host');
+		const port: number = config.get('port');
+		const host: string = config.get('host');
 		
 		if (USE_CLIENT_SSR) {
 			const { View } = require('./src/middlewares/view'); // eslint-disable-line
-			const middleware = new View(app).render();
+			const middleware: Middleware = new View(app).render();
 			app.use(middleware);
 		}
 
@@ -73,3 +86,11 @@ export default (async (): Promise<Koa> => {
 	return app;
 })();
 
+export default async (): Promise<Ready> => {
+	const db: DB = await dbReady;
+	const app: Koa = await appReady;
+	return {
+		db,
+		app
+	};
+};

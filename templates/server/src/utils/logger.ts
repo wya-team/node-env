@@ -1,4 +1,4 @@
-class Logger {
+export class Logger {
 	
 	static log = (value: string): void => {
 		console.log('\x1b[37m%s \x1b[2m%s\x1b[0m', '>', value);
@@ -12,5 +12,3 @@ class Logger {
 		console.log('\x1b[36m%s \x1b[36m%s\x1b[0m', '>', value);
 	}
 }
-
-export default Logger;

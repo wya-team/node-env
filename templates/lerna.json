@@ -7,8 +7,9 @@
       "message": "chore(release): publish"
     },
     "bootstrap": {
-      "npmClientArgs": ["--no-package-lock"]
+      "npmClientArgs": ["--no-package-lock"],
+      "loglevel": "silly"
     }
   },
-  "version": "independent"
+  "version": "1.0.0"
 }

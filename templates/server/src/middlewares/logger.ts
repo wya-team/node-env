@@ -9,7 +9,7 @@ import { DestinationStream } from 'pino';
 import { Options } from 'pino-http';
 import { multistream, Streams } from 'pino-multi-stream';
 
-class Logger {
+export class Logger {
 	static init(opts?: any): Middleware {
 		const date: string = moment().format('YYYY-MM-DD');
 
@@ -56,5 +56,3 @@ class Logger {
 		return pinoLogger(pinoOptions, multistream(streams));
 	}
 }
-
-export default Logger.init;

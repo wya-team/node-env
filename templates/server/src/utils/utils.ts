@@ -1,4 +1,4 @@
-class Utils {
+export class Utils {
 	/**
 	 *  判空
 	 * @param value
@@ -28,5 +28,3 @@ class Utils {
 		return false;
 	}
 }
-
-export default Utils;

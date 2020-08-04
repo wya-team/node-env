@@ -1,6 +1,6 @@
 import { Middleware, Context, Next } from 'koa';
 
-class XRequestId {
+export class XRequestId {
 	/**
 	 * X-Request-Id 唯一标识每个请求
 	 */
@@ -11,5 +11,3 @@ class XRequestId {
 		};
 	}
 }
-
-export default XRequestId.init;

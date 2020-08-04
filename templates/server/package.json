@@ -12,7 +12,7 @@
     "lint": "esw ./src ./app.ts --ext .ts --color",
     "lint:fix": "npm run lint -- --fix",
     "lint:watch": "npm run lint -- --fix --watch",
-    "test": "cross-env NODE_ENV=test jest --no-cache --runInBand --forceExit --detectOpenHandles",
+    "test": "ts-node tests/gen.ts && cross-env NODE_ENV=test jest --no-cache --runInBand --forceExit --detectOpenHandles",
     "test:watch": "npm run test -- --watch",
     "test:cover": "npm run test -- --coverage"
   },
@@ -43,6 +43,7 @@
     "lru-cache": "^6.0.0",
     "mkdirp": "^1.0.4",
     "moment": "^2.27.0",
+    "mongodb": "^3.6.0",
     "pino-multi-stream": "^5.1.1",
     "pino-pretty": "^4.1.0",
     "reflect-metadata": "^0.1.13",
@@ -54,6 +55,7 @@
     "vue-server-renderer": "^2.6.11"
   },
   "devDependencies": {
+    "@types/config": "^0.0.36",
     "@types/jest": "^26.0.7",
     "@types/koa": "^2.11.3",
     "@types/koa-bodyparser": "^4.3.0",
@@ -64,6 +66,7 @@
     "@types/mkdirp": "^1.0.1",
     "@types/node": "^14.0.24",
     "@types/pino-multi-stream": "^5.0.0",
+    "@types/supertest": "^2.0.10",
     "@types/uuid": "^8.0.0",
     "@typescript-eslint/eslint-plugin": "^3.7.0",
     "@typescript-eslint/parser": "^3.7.0",

@@ -4,13 +4,11 @@ const defaultConfig: Config = {
 	port: 7300,
 	host: "0.0.0.0",
 	db: {
-		/**
-		 * 如果需要配置集群：
-		 * mongodb://127.0.0.100:8418,127.0.0.101:8418,127.0.0.102:8418/wapi?slaveOk=true
-		 */
-		url: 'mongodb://127.0.0.1:27017/wapi',
-		user: 'wapi-admin',
-		pass: '123456'
+		host: '127.0.0.1',
+		port: 27017,
+		username: 'repo-admin',
+		password: '123456',
+		database: 'repo'
 	},
 	jwt: {
 		expire: "14 days",

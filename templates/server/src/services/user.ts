@@ -1,12 +1,7 @@
 import { getMongoRepository, MongoRepository } from 'typeorm'
 import { Service } from 'typedi'
+import { validate, ValidationError } from "class-validator";
 import { User } from '../entities'
-
-interface ReqBody {
-	email?: string;
-	username?: string;
-	password?: string;
-}
 
 @Service()
 export class UserService {
@@ -16,11 +11,22 @@ export class UserService {
 		this.repository = getMongoRepository(User)
 	}
 
-	newAndSave(body: ReqBody): Promise<User | void> {
+	async newAndSave(body: User): Promise<User | ValidationError[]> {
+		const { email, username, password } = body;
 		const user = new User();
-		user.email = body.email;
 
-		// TODO: 修复错误数据
-		return this.repository.save(user).catch((e) => console.log(e));
+		user.email = email;
+		user.username = username || email.substr(0, email.indexOf('@'));
+
+		// 加密密码和salt, TODO： 使用sha1或者bcryptjs
+		user.password = password;
+		user.passsalt = password;
+
+		const errors = await validate(user);
+		if (errors.length > 0) {
+			throw errors;
+		}
+
+		return this.repository.save(user);
 	}
 }

@@ -1,43 +1,49 @@
-import { MinLength, IsNotEmpty, IsEmail } from 'class-validator';
+import { MinLength, MaxLength, IsNotEmpty, IsEmail } from 'class-validator';
 import {
-	Entity,
-	BaseEntity,
-	Column,
-	PrimaryGeneratedColumn,
-	CreateDateColumn,
-	UpdateDateColumn
+    Entity,
+    BaseEntity,
+    Column,
+    CreateDateColumn,
+    UpdateDateColumn,
+    ObjectID,
+	ObjectIdColumn
 } from 'typeorm';
 
 @Entity('user')
 export class User extends BaseEntity {
-	@PrimaryGeneratedColumn()
-	id: string;
+	// Mongo Tips: 你必须使用 @ObjectIdColumn 而不是 @PrimaryColumn 或 @PrimaryGeneratedColumn
+    @ObjectIdColumn()
+    id: ObjectID;
 
-	// @Column()
-	// @MinLength(4, { message: '用户名至少4位数' })
-	// @IsNotEmpty({ message: '用户名必填' })
-	// username: string;
+    @Column()
+	@MaxLength(16, { message: '用户名至多十六位数' })
+    @MinLength(4, { message: '用户名至少四位数' })
+	@IsNotEmpty({ message: '用户名必填' })
+    username: string;
 
-	// @Column()
-	// @MinLength(6, { message: '密码至少六位数' })
-	// password: string;
+    @Column()
+	@IsNotEmpty({ message: '密码必填' })
+    password: string;
 
-	@Column()
+    @Column()
 	@IsEmail()
-	email: string;
+	@IsNotEmpty({ message: '邮箱地址必填' })
+    email: string;
 
-	// @Column()
-	// passsalt: string;
+    @Column()
+	@IsNotEmpty({ message: '秘钥盐必须生成' })
+    passsalt: string;
 
-	// @Column()
-	// study: boolean;
+    @CreateDateColumn()
+    createdAt: Date;
 
-	// @Column()
-	// role: string;
+    @UpdateDateColumn()
+    updatedAt: Date;
 
-	@CreateDateColumn()
-	createdAt: Date;
-
-	@UpdateDateColumn()
-	updatedAt: Date;
+	// TODO：考虑用构造器 new User
+	// constructor(body: User) {
+	// 	super();
+	// 	this.email = body.email;
+	// 	this.username = body.username;
+	// }
 }

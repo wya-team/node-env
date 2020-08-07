@@ -1,3 +1,4 @@
+import { Context, Next } from 'koa';
 import { KoaMiddlewareInterface, Middleware } from 'routing-controllers';
 
 /**
@@ -5,15 +6,15 @@ import { KoaMiddlewareInterface, Middleware } from 'routing-controllers';
  */
 @Middleware({ type: 'before' })
 export class CORSMiddleware implements KoaMiddlewareInterface {
-	async use(context: any, next: (err?: any) => any): Promise<any> {
-		context.set('Access-Control-Allow-Methods', 'GET,HEAD,PUT,POST,DELETE,PATCH');
-		context.set(
+	async use(ctx: Context, next: Next): Promise<any> {
+		ctx.set('Access-Control-Allow-Methods', 'GET,HEAD,PUT,POST,DELETE,PATCH');
+		ctx.set(
 			'Access-Control-Allow-Origin',
-			context.request.header.origin || context.request.origin,
+			ctx.request.header.origin || ctx.request.origin,
 		);
-		context.set('Access-Control-Allow-Headers', ['content-type']);
-		context.set('Access-Control-Allow-Credentials', 'true');
-		context.set('Content-Type', 'application/json; charset=utf-8');
+		ctx.set('Access-Control-Allow-Headers', ['content-type']);
+		ctx.set('Access-Control-Allow-Credentials', 'true');
+		ctx.set('Content-Type', 'application/json; charset=utf-8');
 		return next();
 	}
 }

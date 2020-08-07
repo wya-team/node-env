@@ -10,6 +10,7 @@ export default (async (): Promise<Connection> => {
 
 		const connection: Connection = await createConnection({
 			...connectionOptions,
+			// synchronize: true,
 			entities: Object.keys(entities).map(name => entities[name]),
 		});
 
@@ -23,5 +24,5 @@ export default (async (): Promise<Connection> => {
 		console.error(e, 'db config error');
 	}
 })();
-	
+
 

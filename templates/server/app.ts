@@ -1,7 +1,7 @@
 // shim
 import 'reflect-metadata';
 
-import Koa, { Middleware } from 'koa';
+import Koa, { Middleware, Context } from 'koa';
 import path from 'path';
 import { Container } from 'typedi';
 import { Connection } from 'typeorm';
@@ -50,7 +50,7 @@ const appReady = (async (): Promise<Koa> => {
 
 	let app: Koa = new Koa();
 
-	// koa-onerror
+	// koa-onerror, steam和event的错误捕获，中间件的错误中try catch
 	onerror(app);
 
 	// koa-middleware
@@ -66,12 +66,12 @@ const appReady = (async (): Promise<Koa> => {
 	// routes
 	app = useKoaServer<Koa>(app, fakeOptions);
 	app = useKoaServer<Koa>(app, apiOptions);
-	
+
 	// 区分测试时调用
 	if (!module.parent) {
 		const port: number = config.get('port');
 		const host: string = config.get('host');
-		
+
 		if (USE_CLIENT_SSR) {
 			const { View } = require('./src/middlewares/view'); // eslint-disable-line
 			const middleware: Middleware = new View(app).render();
@@ -79,7 +79,7 @@ const appReady = (async (): Promise<Koa> => {
 		}
 
 		app.listen(port, host, () => {
-			console.log(`server started at http://${host}:${port}`);	
+			console.log(`server started at http://${host}:${port}`);
 		});
 	}
 

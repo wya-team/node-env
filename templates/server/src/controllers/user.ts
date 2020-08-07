@@ -1,7 +1,9 @@
 import { Get, Post, Ctx, JsonController, QueryParam } from 'routing-controllers';
 import { Context } from 'koa';
 import { Container } from 'typedi';
+import { pick } from 'lodash';
 import { UserService } from "../services"
+import ft from "../entities/fields-table"
 
 @JsonController()
 export class UserController {
@@ -15,9 +17,8 @@ export class UserController {
 	@Post('/user/reg')
 	async reg(@Ctx() ctx: Context): Promise<any> {
 		let user = await this.userService.newAndSave(ctx.request.body);
-		return {
-			msg: 'success'
-		};
+
+		return pick(user, ft.user);
 	}
 
 	@Get('/user/ctx')

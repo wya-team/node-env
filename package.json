@@ -21,7 +21,6 @@
     "dev": "cd templates && npm run dev",
     "build": "cd templates && npm run build"
   },
-  "dependencies": {},
   "devDependencies": {
     "@babel/cli": "^7.10.5",
     "@babel/core": "^7.10.5",

@@ -1,1 +1,1 @@
-export * from './auto-assign';
+export * from './output';

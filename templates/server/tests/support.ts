@@ -1,8 +1,17 @@
-import request from 'supertest';
+import request, { SuperTest, Test } from 'supertest';
+import { Response } from 'koa';
 import { getMongoRepository, MongoRepository, BaseEntity } from 'typeorm';
 
 import ready, { Ready, DB } from '../app';
 import * as entities from '../src/entities';
+
+type Method = (url: string, ctoken?: string) => Promise<Response>;
+export interface RequestMethod {
+	get: Method;
+	post: Method;
+	put: Method;
+	delete: Method;
+}
 
 export class Support {
 	static async ready(): Promise<Ready> {
@@ -44,20 +53,38 @@ export class Support {
 		return request(app.listen())
 			.post('/api/user/reg')
 			.send({ email, password })
-			// .then(() => this.login(email, password));
+			.then(() => this.login(email, password));
+	}
+
+	/**
+	 * 创建一个登录的账户
+	 */
+	static createRequest(server: any, token: string): any {
+		let hook = (method: string): Method => {
+			return (url, ctoken = token) => request(server)[method](url) // eslint-disable-line
+				.set('Cookie', [`_wapi_tag_=test;_wapi_token_=${ctoken}`])
+				.set('Authorization', 'Bearer ' + ctoken); // koa-jwt
+		};
+
+		return {
+			get: hook('get'),
+			post: hook('post'),
+			put: hook('put'),
+			delete: hook('delete'),
+		};
 	}
 
 	/**
 	 * 无任何权限的
 	 */
-	static createPureRequest(server: any) {
-		let hook = (method: string) => {
-			return (url: any, ctoken: string) => {
+	static createPureRequest(server: any): any {
+		let hook = (method: string): Method => {
+			return (url, ctoken) => {
 				if (!ctoken) {
 					return request(server)[method](url); // eslint-disable-line
 				} else {
 					return request(server)[method](url) // eslint-disable-line
-						.set('Cookie', [`_wapi_tag_=test;_wapi_token_=${ctoken}`])
+						.set('Cookie', [`_repo_tag_=test;_repo_token_=${ctoken}`])
 						.set('Authorization', 'Bearer ' + ctoken); // koa-jwt
 				}
 			};

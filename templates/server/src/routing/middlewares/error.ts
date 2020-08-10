@@ -25,8 +25,10 @@ export class ErrorMiddleware implements KoaMiddlewareInterface {
 			// ctx.app.emit('error', err, ctx);
 
 			let msg: string = err.message;
-			if (err[0] instanceof ValidationError) {
-				msg = Object.entries(err[0].constraints)[0][1];
+
+			let target: ValidationError[] = err[0] || err.errors || [];
+			if (target[0] instanceof ValidationError) {
+				msg = Object.entries(target[0].constraints)[0][1];
 			}
 
 			let result: Result = { status: 0, msg };

@@ -9,3 +9,8 @@ export const USE_DATA_BASE = true;
  * @type {Boolean}
  */
 export const USE_CLIENT_SSR = false;
+
+/**
+ * 给客户端的key值
+ */
+export const TOKEN_KEY = '_repo_token_';

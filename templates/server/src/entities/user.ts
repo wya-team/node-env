@@ -31,7 +31,6 @@ export class User extends BaseEntity {
     email: string;
 
     @Column()
-	@IsNotEmpty({ message: '秘钥盐必须生成' })
     passsalt: string;
 
     @CreateDateColumn()
@@ -40,6 +39,8 @@ export class User extends BaseEntity {
     @UpdateDateColumn()
     updatedAt: Date;
 
+	// 不写入到数据库
+	token?: string;
 	// TODO：考虑用构造器 new User
 	// constructor(body: User) {
 	// 	super();

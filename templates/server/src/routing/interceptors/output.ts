@@ -1,5 +1,6 @@
 import { InterceptorInterface, Action, Interceptor } from 'routing-controllers';
 import { ValidationError } from 'class-validator';
+
 /**
  * HTTP_STATUS: 500 不执行此处逻辑
  */
@@ -9,7 +10,7 @@ export class OutputInterceptor implements InterceptorInterface {
 		let output: any = Object.create(null);
 
 		if (typeof result === 'object') {
-			output.status = 1;
+			output.status = result.status || 1;
 			result.msg
 				? (
 					output.msg = result.msg,

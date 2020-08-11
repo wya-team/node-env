@@ -16,7 +16,7 @@ import { pathToRegexp } from 'path-to-regexp';
 
 import { apiOptions, fakeOptions } from './src/routing';
 import { USE_CLIENT_SSR, USE_DATA_BASE, TOKEN_KEY } from './src/constants';
-import { Logger, XRequestId, JWT } from './src/middlewares';
+import { Logger, XRequestId, JWT, IpFilter } from './src/middlewares';
 import { Clean } from './src/schedules';
 
 const resolve = (...args: string[]): string => path.resolve(__dirname, ...args);
@@ -56,6 +56,7 @@ const appReady = (async (): Promise<Koa> => {
 
 	// koa-middleware
 	app
+		.use(IpFilter.init())
 		.use(favicon(resolve('./public/images/icon.png')))
 		.use(serve('/dist', '../client/dist'))
 		.use(serve('/public', './public'))

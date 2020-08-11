@@ -5,7 +5,7 @@ import { getMongoRepository, MongoRepository, BaseEntity } from 'typeorm';
 import ready, { Ready, DB } from '../app';
 import * as entities from '../src/entities';
 
-type Method = (url: string, ctoken?: string) => Promise<Response>;
+type Method = (url: string, ctoken?: string) => any;
 export interface RequestMethod {
 	get: Method;
 	post: Method;
@@ -19,15 +19,16 @@ export class Support {
 		return result;
 	}
 
-	static async clean() {
+	static async clean(opts?: any) {
 		const { db } = await Support.ready();
-
+		const { close = true } = opts || {};
+		// 清空数据库
 		if (db) {
-			// await Promise.all(Object.keys(entities).map(key => {
-			// 	let repository: MongoRepository<BaseEntity> = db.getMongoRepository(entities[key]);
-			// 	return repository.clear();
-			// }));
-			db.close();
+			await Promise.all(Object.keys(entities).map(key => {
+				let repository: MongoRepository<BaseEntity> = db.getMongoRepository(entities[key]);
+				return repository.clear();
+			}));
+			close && db.close();
 		}
 	}
 
@@ -40,7 +41,8 @@ export class Support {
 				if (res.body.status === 1) {
 					return res.body.data;
 				} else {
-					console.error(res.body.msg);
+					console.error('/api/user/login:', res.body);
+					return Promise.reject();
 				}
 			});
 	}
@@ -48,12 +50,19 @@ export class Support {
 	/**
 	 * 创建一个登录的账户
 	 */
-	static async createUser(email = 'admin@wapi.com', password = '123456') {
+	static async createUser(email = 'admin@repo.com', password = '123456') {
 		const { app } = await Support.ready();
 		return request(app.listen())
 			.post('/api/user/reg')
 			.send({ email, password })
-			.then(() => this.login(email, password));
+			.then((res) => {
+				if (res.body.status === 1) {
+					return this.login(email, password);
+				} else {
+					console.error('/api/user/reg:', res.body);
+					return Promise.reject();
+				}
+			});
 	}
 
 	/**
@@ -62,7 +71,7 @@ export class Support {
 	static createRequest(server: any, token: string): any {
 		let hook = (method: string): Method => {
 			return (url, ctoken = token) => request(server)[method](url) // eslint-disable-line
-				.set('Cookie', [`_wapi_tag_=test;_wapi_token_=${ctoken}`])
+				.set('Cookie', [`_repo_tag_=test;_repo_token_=${ctoken}`])
 				.set('Authorization', 'Bearer ' + ctoken); // koa-jwt
 		};
 

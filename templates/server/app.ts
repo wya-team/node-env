@@ -12,10 +12,11 @@ import staticCache from 'koa-static-cache';
 import onerror from 'koa-onerror';
 import favicon from 'koa-favicon';
 import config from 'config';
+import { pathToRegexp } from 'path-to-regexp';
 
 import { apiOptions, fakeOptions } from './src/routing';
-import { USE_CLIENT_SSR, USE_DATA_BASE } from './src/constants';
-import { Logger, XRequestId } from './src/middlewares';
+import { USE_CLIENT_SSR, USE_DATA_BASE, TOKEN_KEY } from './src/constants';
+import { Logger, XRequestId, JWT } from './src/middlewares';
 import { Clean } from './src/schedules';
 
 const resolve = (...args: string[]): string => path.resolve(__dirname, ...args);
@@ -61,6 +62,18 @@ const appReady = (async (): Promise<Koa> => {
 		.use(serve('/upload', config.get('upload.dir'), true))
 		.use(Logger.init())
 		.use(XRequestId.init())
+		.use(
+			JWT.init({ cookie: TOKEN_KEY }).unless((ctx: Context) => {
+				if (/^\/api/.test(ctx.path)) {
+					// RegExp: /?:^\/api\/user\/login[\/#\?]?$/i
+					return pathToRegexp([
+						'/api/user/login',
+						'/api/user/reg'
+					]).test(ctx.path);
+				}
+				return true;
+			})
+		)
 		.use(bodyParser({ ...config.get('bodyParser') }));
 
 	// routes

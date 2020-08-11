@@ -2,7 +2,7 @@ import { Get, Post, Ctx, JsonController, QueryParam, Body } from 'routing-contro
 import { Context } from 'koa';
 import { Container } from 'typedi';
 import { ObjectID } from 'typeorm';
-import { pick, merge } from 'lodash';
+import _, { pick, merge } from 'lodash';
 import config from 'config';
 import jwt from 'jsonwebtoken';
 import Cookies from 'cookies';
@@ -61,6 +61,93 @@ export class UserController {
 	}
 
 	/**
+	 * TODO: 清除了token, 但token还可以继续使用，存在安全问题
+	 */
+	@Post('/user/logout')
+	async logout(@Ctx() ctx: Context): Promise<any> {
+		ctx.cookies.set(TOKEN_KEY, null);
+
+		return { msg: '已清除登录信息' };
+	}
+
+	/**
+	 * 目前提供修改邮箱和用户名
+	 */
+	@Post('/user/update')
+	async update(@Ctx() ctx: Context): Promise<any> {
+		let { username, email } = ctx.request.body;
+		if (!username && !email) {
+			return '请输入要修改的相关字段'
+		}
+
+		if (email) {
+			const checkRepeat = await this.userService.checkRepeat(email);
+			if (checkRepeat > 0) {
+				return '该email已经注册'
+			}
+		}
+
+		let { user } = ctx.state;
+		user.username = username || user.username;
+		user.email = email || user.email;
+
+		// TODO: 如果是失败的情况，需要进行回滚ctx.state.user
+		let newUser = await this.userService.update(user);
+		return pick(newUser, ft.user);
+	}
+
+	@Post('/user/change-password')
+	async changePassword(@Ctx() ctx: Context): Promise<any> {
+		let { oldPassword, password } = ctx.request.body;
+
+		if (!oldPassword) {
+			return '旧密码不能为空';
+		}
+
+		if (!password) {
+			return '新密码不能为空';
+		}
+		let { user } = ctx.state;
+		if (oldPassword !== user.password) {
+			return '旧密码错误';
+		}
+
+		// TODO: 加密
+		user.password = password;
+		user.passsalt = password;
+
+		// TODO: 如果是失败的情况，需要进行回滚ctx.state.user
+		let newUser = await this.userService.update(user);
+		return pick(newUser, ft.user);
+	}
+
+	@Get('/user/list')
+	async list(@Ctx() ctx: Context): Promise<any> {
+		const { page = 1, pageSize = 10 } = ctx.request.query;
+
+		if (pageSize < 0) {
+			return '参数错误';
+		}
+
+		try {
+			let users = await this.userService.listWithPaging(page, pageSize);
+			let count = await this.userService.listCount();
+			return {
+				page: {
+					count,
+					current: Number(page),
+					total: Math.ceil(count / pageSize)
+				},
+				list: users.map(user => pick(user, ft.user))
+			};
+		} catch (e) {
+			console.log(e);
+
+			return '查询失败';
+		}
+	}
+
+	/**
 	 * 这里也可以偷懒，把jwtSecret秘钥换成固定值
 	 * TODO: 单点登录
 	 */
@@ -71,6 +158,7 @@ export class UserController {
 			{ expiresIn: config.get('jwt.expire') || '7 days' }
 		);
 	}
+
 
 	/**
 	 * 如果采用cookie验证的话

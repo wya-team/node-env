@@ -15,7 +15,7 @@ export default (async (): Promise<Connection> => {
 		});
 
 		if (connection.isConnected) {
-			Logger.log('database connected.');
+			Logger.log(`database connected. ${(connectionOptions as any).port} ${connectionOptions.database}`);
 		} else {
 			Logger.danger('Database connection failed.');
 		}

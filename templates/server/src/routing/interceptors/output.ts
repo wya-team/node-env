@@ -6,16 +6,21 @@ import { ValidationError } from 'class-validator';
 @Interceptor()
 export class OutputInterceptor implements InterceptorInterface {
 	intercept(action: Action, result: any): string {
+		let output: any = Object.create(null);
+
 		if (typeof result === 'object') {
-			return JSON.stringify({
-				status: 1,
-				msg: 'ok',
-				data: result
-			});
+			output.status = 1;
+			result.msg
+				? (
+					output.msg = result.msg,
+					result.data && (output.data = result.data)
+				)
+				: (output.msg = 'ok', output.data = result);
+		} else {
+			output.status = 0;
+			output.msg = result;
 		}
-		return JSON.stringify({
-			status: 0,
-			msg: result
-		});
+
+		return JSON.stringify(output);
 	}
 }

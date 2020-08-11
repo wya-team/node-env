@@ -1,14 +1,21 @@
-import { getMongoRepository, MongoRepository, ObjectID } from 'typeorm'
-import { Service } from 'typedi'
+import { getMongoRepository, MongoRepository, ObjectID, ObjectIdColumn } from 'typeorm';
+import { Service } from 'typedi';
 import { validate, ValidationError } from "class-validator";
-import { User } from '../entities'
+import { User } from '../entities';
 
 @Service()
 export class UserService {
 	repository: MongoRepository<User>
 
 	constructor() {
-		this.repository = getMongoRepository(User)
+		this.repository = getMongoRepository(User);
+	}
+
+	private async _checkUser(data: User, opts?: any) {
+		const errors = await validate(data);
+		if (errors.length > 0) {
+			throw errors; // ValidationError[]
+		}
 	}
 
 	async newAndSave(body: User): Promise<User> {
@@ -22,11 +29,7 @@ export class UserService {
 		user.password = password;
 		user.passsalt = password;
 
-		const errors = await validate(user);
-		if (errors.length > 0) {
-			throw errors; // ValidationError[]
-		}
-
+		await this._checkUser(user);
 		return this.repository.save(user);
 	}
 
@@ -34,12 +37,25 @@ export class UserService {
 		return this.repository.count({ email });
 	}
 
-	findById(id: ObjectID): Promise<User | undefined>  {
-		return this.repository.findOne({ id });
+	findById(id: string): Promise<User | undefined> {
+		// fineOneOrFail 找不到可以报错
+		return this.repository.findOne(id);
 	}
 
-	findByEmail(email: string): Promise<User | undefined>  {
+	findByEmail(email: string): Promise<User | undefined> {
 		return this.repository.findOne({ email });
+	}
+
+	async update(newData: User): Promise<User> {
+		await this._checkUser(newData);
+		return this.repository.save(newData);
+	}
+
+	listWithPaging(page: number, pageSize: number): Promise<User[]> {
+		return this.repository.find({
+			skip: (page - 1) * pageSize,
+			take: Number(pageSize)
+		});
 	}
 
 	listCount(): Promise<number> {

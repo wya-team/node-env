@@ -1,9 +1,18 @@
 import request from 'supertest';
-import { Support } from '../support';
+import { Support, RequestMethod } from '../support';
+import { User } from '../../src/entities';
 
 describe('routers: test', () => {
+	let $: RequestMethod;
+	let $pure: RequestMethod;
+	let user: User;
 	beforeAll(async (done) => {
-		await Support.ready();
+		let { db, app } = await Support.ready();
+
+		user = await Support.createUser();
+		$ = await Support.createRequest(app.listen(), user.token);
+		$pure = await Support.createPureRequest(app.listen());
+
 		done();
 	});
 
@@ -12,8 +21,9 @@ describe('routers: test', () => {
 		done();
 	});
 
-	it('basic', async () => {
-		expect(1).toEqual(1);
-		let user = await Support.createUser();
+	describe('basic', () => {
+		test('---', async () => {
+			expect(1).toEqual(1);
+		});
 	});
 });

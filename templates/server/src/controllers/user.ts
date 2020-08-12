@@ -1,4 +1,4 @@
-import { Get, Post, Ctx, JsonController, QueryParam, Body } from 'routing-controllers';
+import { Get, Post, Ctx, JsonController, QueryParam, Body, Param } from 'routing-controllers';
 import { Context } from 'koa';
 import { Container } from 'typedi';
 import { ObjectID } from 'typeorm';
@@ -121,6 +121,21 @@ export class UserController {
 		return pick(newUser, ft.user);
 	}
 
+	@Get("/user/current")
+	async getCurrent(@Ctx() ctx: Context): Promise<any> {
+		// 仅用于测试数据
+		const { delay } = ctx.request.query;
+		if (delay) {
+			await new Promise((resolve, reject) => {
+				setTimeout(resolve, delay * 1000);
+			});
+		}
+		return pick(ctx.state.user, ft.user);
+	}
+
+	/**
+	 * TODO: 是否需要验证权限，否则只要登录了，所有信息可查
+	 */
 	@Get('/user/list')
 	async list(@Ctx() ctx: Context): Promise<any> {
 		const { page = 1, pageSize = 10 } = ctx.request.query;
@@ -145,6 +160,16 @@ export class UserController {
 
 			return '查询失败';
 		}
+	}
+
+	/**
+	 * TODO: 是否需要验证权限，否则只要登录了，所有信息可查
+	 */
+	@Get("/user/:id")
+	async getOne(@Param("id") id: string): Promise<any> {
+		let user = await this.userService.findById(id);
+
+		return pick(user, ft.user);
 	}
 
 	/**

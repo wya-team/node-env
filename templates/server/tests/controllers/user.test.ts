@@ -47,7 +47,6 @@ describe('routers: user', () => {
 
 			expect(res.body.msg).toBe('该email已经注册');
 		});
-
 	});
 
 	/**
@@ -113,6 +112,23 @@ describe('routers: user', () => {
 		test('分页查询', async () => {
 			const res = await $.get(url);
 			expect(res.body.data.list).toHaveLength(2);
+		});
+	});
+
+	describe('concurrence', () => {
+		test('接口请求时，ctx指向当前本身', async () => {
+			const testloginUrl = '/api/user/login';
+			const testloginRes = await $.post(testloginUrl)
+				.send({ email: 'test@repo.com', password: '123456' });
+
+			const targetUrl = '/api/user/current';
+			const targetWait = $.get(`${targetUrl}?delay=3`);
+
+			const compareRes = await $.get(`${targetUrl}`, testloginRes.body.data.token);
+			const targetRes = await targetWait;
+
+			expect(compareRes.body.data.email).toBe('test@repo.com');
+			expect(targetRes.body.data.email).toBe('admin@repo.com');
 		});
 	});
 

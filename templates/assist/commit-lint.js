@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 
-const commitRE = /^(revert: )?(fix|feat|docs|perf|test|types|build|chore|refactor|breaking change)(\(.+\))?: .{1,50}/;  // eslint-disable-line
+const commitRE = /^(revert: )?(opti|fix|feat|docs|perf|test|types|build|chore|refactor|breaking change)(\(.+\))?: .{1,50}/;  // eslint-disable-line
 const mergeRE = /Merge branch /;
 
 const gitParams = process.env.HUSKY_GIT_PARAMS;
@@ -11,14 +11,14 @@ if (!commitRE.test(commitMsg) && !mergeRE.test(commitMsg)) {
 	console.error(
 		`invalid commit message: "${commitMsg}".
 
-		Examples: 
+		Examples:
 
 		- fix(Button): incorrect style
 		- feat(Button): incorrect style
 		- docs(Button): fix typo
 
 		Allowed Types:
-		
+
 		- fix：修补bug
 		- feat：新功能（feature）
 		- docs：文档（documentation）
@@ -28,6 +28,7 @@ if (!commitRE.test(commitMsg) && !mergeRE.test(commitMsg)) {
 		- perf
 		- types
 		- build
+		- opti
 		- breaking change
 		- Merge branch 'foo' into 'bar'
 		`

@@ -2,7 +2,7 @@ import { Context, Next } from 'koa';
 import { KoaMiddlewareInterface, Middleware } from 'routing-controllers';
 import { ValidationError } from "class-validator";
 
-const env = process.env.NODE_ENV || 'development'
+const env = process.env.NODE_ENV || 'development';
 interface Result {
 	status: number,
 	msg: string,

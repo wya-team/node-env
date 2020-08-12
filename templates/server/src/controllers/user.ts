@@ -7,10 +7,10 @@ import config from 'config';
 import jwt from 'jsonwebtoken';
 import Cookies from 'cookies';
 
-import { TOKEN_KEY } from "../constants"
-import { UserService } from "../services"
-import { User } from "../entities"
-import ft from "../entities/fields-table"
+import { TOKEN_KEY } from "../constants";
+import { UserService } from "../services";
+import { User } from "../entities";
+import ft from "../entities/fields-table";
 @JsonController()
 export class UserController {
 
@@ -55,7 +55,7 @@ export class UserController {
 		}
 
 		let token: string = this.getToken(user.id, user.passsalt);
-		ctx.cookies.set(TOKEN_KEY, token, this.getCookieOptions())
+		ctx.cookies.set(TOKEN_KEY, token, this.getCookieOptions());
 
 		return merge(pick(user, ft.user), { token });
 	}
@@ -77,13 +77,13 @@ export class UserController {
 	async update(@Ctx() ctx: Context): Promise<any> {
 		let { username, email } = ctx.request.body;
 		if (!username && !email) {
-			return '请输入要修改的相关字段'
+			return '请输入要修改的相关字段';
 		}
 
 		if (email) {
 			const checkRepeat = await this.userService.checkRepeat(email);
 			if (checkRepeat > 0) {
-				return '该email已经注册'
+				return '该email已经注册';
 			}
 		}
 

@@ -1,27 +1,28 @@
 import fs from 'fs-extra';
 import path from 'path';
 import Koa, { Context } from 'koa';
-import { 
-	createBundleRenderer, 
+import {
+	createBundleRenderer,
 	BundleRenderer,
-	BundleRendererOptions 
+	BundleRendererOptions
 } from 'vue-server-renderer';
 import LRU from 'lru-cache';
 import Cookies from 'universal-cookie';
 
-const resolve = (file: string): string => path.resolve(__dirname, file);
+const rootPath = process.cwd();
+const resolve = (file: string): string => path.resolve(rootPath, file);
 const isProd: boolean = process.env.NODE_ENV === 'production';
 
 const resolvePackage = (source: string): string | void => {
 	let nms = [
-		path.resolve(__dirname, '../../node_modules', source),
-		path.resolve(__dirname, '../../../node_modules', source)
+		path.resolve(rootPath, './node_modules', source),
+		path.resolve(rootPath, './../node_modules', source)
 	];
 
 	let fullpath = nms.find(i => fs.pathExistsSync(i));
 
 	if (!fullpath) {
-		throw new Error(`未找到${source}`);
+		throw new Error(`未找到${source}\n nm1: ${nms[0]} \n nm2: ${nms[1]}`);
 	}
 
 	return fullpath;
@@ -32,7 +33,7 @@ const resolvePackage = (source: string): string | void => {
  */
 const createRenderer = (bundle: BundleRenderer, options?: BundleRendererOptions): BundleRenderer => {
 	return createBundleRenderer(
-		bundle, 
+		bundle,
 		{
 			...options,
 			cache: new LRU({
@@ -40,7 +41,7 @@ const createRenderer = (bundle: BundleRenderer, options?: BundleRendererOptions)
 				maxAge: 1000 * 60 * 15
 			}),
 			// this is only needed when vue-server-renderer is npm-linked
-			basedir: resolve('../dist'),
+			basedir: resolve('../client/dist'),
 			// recommended for performance
 			runInNewContext: false
 		}
@@ -68,7 +69,7 @@ export class View {
 		// HRM时，renderer会利用回调重置
 		let renderer;
 		const { ready, server } = setupDevServer(
-			template, 
+			template,
 			(bundle, options) => (renderer = createRenderer(bundle, options))
 		);
 
@@ -106,7 +107,7 @@ export class View {
 					url: ctx.url,
 					cookies: new Cookies(ctx.headers.cookie)
 				});
-				
+
 			} catch (e) {
 				if (e.code === 401) {
 					ctx.status = 302;

@@ -19,7 +19,12 @@ import { USE_CLIENT_SSR, USE_DATA_BASE, TOKEN_KEY } from './src/constants';
 import { Logger, XRequestId, JWT, IpFilter } from './src/middlewares';
 import { Clean } from './src/schedules';
 
-const resolve = (...args: string[]): string => path.resolve(__dirname, ...args);
+const rootPath = process.cwd();
+const resolve = (...args: string[]): string => {
+	let fullpath = path.resolve(rootPath, ...args);
+	console.log(`check: ${fullpath}`);
+	return fullpath;
+};
 
 const serve = (prefix: string, filePath: string, baseConfig?: boolean): Middleware => {
 	return staticCache(baseConfig ? resolve('config', filePath) : resolve(filePath), {

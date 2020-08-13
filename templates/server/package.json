@@ -4,10 +4,11 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "start": "cross-env NODE_ENV=production npm run dev:client",
+    "start": "cross-env NODE_ENV=production node dist/app.js",
     "dev": "nodemon --config nodemon.json",
     "dev:client": "ts-node -r tsconfig-paths/register ./app.ts",
     "dev:server": "cross-env NODE_ENV=production npm run dev",
+    "dev:prod": "cross-env NODE_ENV=production npm run dev:client",
     "build": "tsc -P tsconfig.json --declaration false --sourceMap false",
     "lint": "esw ./src ./app.ts --ext .ts --color",
     "lint:fix": "npm run lint -- --fix",
@@ -17,10 +18,12 @@
     "test:cover": "npm run test -- --coverage"
   },
   "scripts-info": {
-    "start": "【后端 - Production】以生产环境方式启动，需要提前执行 build",
+    "start": "纯线上环境模拟, 记得要先build, 且client也执行了build",
+    "dev:prod": "【后端 - Production】以生产环境方式启动，需要提前执行 build",
     "dev:client": "【前端 - Development】运行前端开发服务器",
     "dev:server": "【后端 - Development】运行后端开发服务器",
-    "test": "【后端】单元测试"
+    "test": "【后端】单元测试",
+	"build": "编译ts代码 -> dist/, 生产环境可以使用node dist/app.js 或者 pm2 dist/app.js"
   },
   "repository": {
     "type": "git",

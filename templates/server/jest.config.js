@@ -3,6 +3,7 @@ module.exports = {
 	preset: 'ts-jest',
 	testEnvironment: 'node',
 	testRegex: '.*\\.test\\.(j|t)s?$',
+	testPathIgnorePatterns: ['<rootDir>/dist/'],
 	transformIgnorePatterns: ['<rootDir>/node_modules/'],
 	moduleFileExtensions: ['ts', 'js'],
 	moduleNameMapper: {

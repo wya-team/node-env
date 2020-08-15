@@ -22,7 +22,7 @@ import { Clean } from './src/schedules';
 const rootPath = process.cwd();
 const resolve = (...args: string[]): string => {
 	let fullpath = path.resolve(rootPath, ...args);
-	console.log(`check: ${fullpath}`);
+	process.env.NODE_ENV !== 'test' && console.log(`check: ${fullpath}`);
 	return fullpath;
 };
 

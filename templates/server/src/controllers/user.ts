@@ -11,6 +11,7 @@ import { TOKEN_KEY } from "../constants";
 import { UserService } from "../services";
 import { User } from "../entities";
 import ft from "../entities/fields-table";
+
 @JsonController()
 export class UserController {
 

@@ -26,7 +26,8 @@ export class Support {
 		if (db) {
 			await Promise.all(Object.keys(entities).map(key => {
 				let repository: MongoRepository<BaseEntity> = db.getMongoRepository(entities[key]);
-				return repository.clear();
+				// 可能存在实体没有创建，MongoError: ns not found
+				return repository.clear().catch((e) => Promise.resolve(e));
 			}));
 			close && db.close();
 		}

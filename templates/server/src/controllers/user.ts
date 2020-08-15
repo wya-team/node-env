@@ -29,7 +29,7 @@ export class UserController {
 			return '该email已经注册';
 		}
 
-		const user: User = await this.userService.newAndSave(body);
+		const user: User = await this.userService.create(body);
 
 		return pick(user, ft.user);
 	}

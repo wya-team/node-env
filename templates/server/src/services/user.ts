@@ -11,14 +11,14 @@ export class UserService {
 		this.repository = getMongoRepository(User);
 	}
 
-	private async _checkUser(data: User, opts?: any) {
+	private async _check(data: User, opts?: any) {
 		const errors = await validate(data);
 		if (errors.length > 0) {
 			throw errors; // ValidationError[]
 		}
 	}
 
-	async newAndSave(body: User): Promise<User> {
+	async create(body: User): Promise<User> {
 		const { email, username, password } = body;
 		const user = new User();
 
@@ -29,8 +29,13 @@ export class UserService {
 		user.password = password;
 		user.passsalt = password;
 
-		await this._checkUser(user);
+		await this._check(user);
 		return this.repository.save(user);
+	}
+
+	async update(newData: User): Promise<User> {
+		await this._check(newData);
+		return this.repository.save(newData);
 	}
 
 	checkRepeat(email: string): Promise<number> {
@@ -44,11 +49,6 @@ export class UserService {
 
 	findByEmail(email: string): Promise<User | undefined> {
 		return this.repository.findOne({ email });
-	}
-
-	async update(newData: User): Promise<User> {
-		await this._checkUser(newData);
-		return this.repository.save(newData);
 	}
 
 	listWithPaging(page: number, pageSize: number): Promise<User[]> {

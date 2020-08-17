@@ -9,7 +9,7 @@ interface Result {
 	__DEV__?: any
 }
 /**
- * 参考koa-error
+ * 参考koa-error, 捕获项目中的Error(throw xxxx), 但不返回500状态
  */
 @Middleware({ type: 'after' })
 export class ErrorMiddleware implements KoaMiddlewareInterface {
@@ -20,8 +20,8 @@ export class ErrorMiddleware implements KoaMiddlewareInterface {
 				&& !ctx.response.body
 				&& ctx.throw(404);
 		} catch (err) {
-			ctx.status = 500;
 			ctx.type = 'application/json';
+			// ctx.status = 500;
 			// ctx.app.emit('error', err, ctx);
 
 			let msg: string = err.message;

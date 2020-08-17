@@ -72,9 +72,9 @@ const appReady = (async (): Promise<Koa> => {
 			JWT.init({ cookie: TOKEN_KEY }).unless((ctx: Context) => {
 				if (/^\/api/.test(ctx.path)) {
 					// RegExp: /?:^\/api\/user\/login[\/#\?]?$/i
-					return pathToRegexp([
-						'/api/user/login',
-						'/api/user/reg'
+					return ctx.method === 'POST' && pathToRegexp([
+						'/api/users',
+						'/api/user'
 					]).test(ctx.path);
 				}
 				return true;

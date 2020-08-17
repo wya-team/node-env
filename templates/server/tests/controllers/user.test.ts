@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { Support, RequestMethod } from '../support';
 import { User } from '../../src/entities';
 
-describe('routers: user', () => {
+describe('routers: users/user', () => {
 	let $: RequestMethod;
 	let $pure: RequestMethod;
 	let user: User;
@@ -23,15 +23,10 @@ describe('routers: user', () => {
 		done();
 	});
 
-	/**
-	 * POST /api/user/reg
-	 * req: { email, password, username }
-	 * res: User
-	 */
-	describe('register', () => {
-		const url = '/api/user/reg';
-		const param = { email: 'test@repo.com', password: '123456' };
+	const url = '/api/users';
+	const param = { email: 'test@repo.com', password: '123456' };
 
+	describe('POST /api/users', () => {
 		test('参数验证', async () => {
 			const res = await $.post(url);
 			expect(res.body.msg).toBe('邮箱地址必填');
@@ -49,61 +44,65 @@ describe('routers: user', () => {
 		});
 	});
 
-	/**
-	 * POST /api/user/login
-	 * req: { email, password }
-	 * res: User
-	 */
-	describe('login', () => {
-		const url = '/api/user/login';
+	describe('DELETE /api/users', () => {
 		test('参数验证', async () => {
-			const res = await $.post(url);
-
-			expect(res.body.msg).toBe('邮箱不能为空');
+			const res = await $.put(url);
+			expect(res.body.msg).toBe('Not Found');
 		});
 
-		test('登录', async () => {
-			const res = await $.post(url)
-				.send({ email: 'admin@repo.com', password: '123456' });
+		test('删除操作', async () => {
+			const currentParam = { email: 'delete@repo.com', password: '123456' };
+			const { id, token } = await Support.createUser(currentParam);
 
-			expect(res.body.data.username).toBe('admin');
+			const res = await $.delete(`${url}/${id}`, token);
+			expect(res.body.msg).toBe('ok');
 		});
 
-		test('用户名错误', async () => {
-			const res = await $.post(url)
-				.send({ email: 'admin2@repo.com', password: '123456' });
+		test('删除操作 - 重复删除', async () => {
+			const currentParam = { email: 'delete1@repo.com', password: '123456' };
+			const { id, token } = await Support.createUser(currentParam);
 
-			expect(res.body.msg).toBe('该用户不存在');
-		});
+			const res = await $.delete(`${url}/${id}`, token);
+			expect(res.body.msg).toBe('ok');
 
-		test('密码错误', async () => {
-			const res = await $.post(url)
-				.send({ email: 'admin@repo.com', password: '1234567' });
-
-			expect(res.body.msg).toBe('密码错误');
+			const errRes = await $.delete(`${url}/${id}`);
+			expect(errRes.body.msg).toBe('当前用户不存在或已删除');
 		});
 	});
 
-	describe('update', () => {
-		const url = '/api/user/update';
-		test('参数验证', async () => {
-			const res = await $.post(url).send();
-
-			expect(res.body.msg).toBe('请输入要修改的相关字段');
+	describe('PUT /api/users', () => {
+		test('参数验证: 直接访问', async () => {
+			const res = await $.put(url);
+			expect(res.body.msg).toBe('Not Found');
 		});
 
-		test('信息更新', async () => {
-			const res = await $.post(url)
-				.send({
-					username: 'admin2',
-				});
+		test('参数验证: 无参数传递', async () => {
+			const res = await $.put(`${url}/${user.id}`);
+			expect(res.body.msg).toBe('请输入需要修改的相关字段');
+		});
 
-			expect(res.body.data.username).toBe('admin2');
+		test('更新 - 修改用户名', async () => {
+			const currentParam = { email: 'put@repo.com', password: '123456' };
+			const { id, token } = await Support.createUser(currentParam);
+
+			// 修改用户名
+			const usernameParam = { username: 'admin1' };
+			const usernameRes = await $.put(`${url}/${id}`, token).send(usernameParam);
+			expect(usernameRes.body.data.username).toBe(usernameParam.username);
+		});
+
+		test('更新 - 修改密码', async () => {
+			const currentParam = { email: 'put1@repo.com', password: '123456' };
+			const { id, token } = await Support.createUser(currentParam);
+
+			// 修改密码
+			const passwordParam = { password: '1245678' };
+			const passwordRes = await $.put(`${url}/${id}`, token).send(passwordParam);
+			expect(passwordRes.body.msg).toBe('ok');
 		});
 	});
 
-	describe('list', () => {
-		const url = '/api/user/list';
+	describe('GET /api/users', () => {
 		test('参数验证', async () => {
 			const res = await $.get(url).query({ pageSize: -1 });
 			expect(res.body.msg).toBe('参数错误');
@@ -111,94 +110,77 @@ describe('routers: user', () => {
 
 		test('分页查询', async () => {
 			const res = await $.get(url);
-			expect(res.body.data.list).toHaveLength(2);
+			expect(res.body.data.list).toHaveLength(4); // admin, test, put, put1
 		});
 	});
 
-	describe('concurrence', () => {
-		test('接口请求时，ctx指向当前本身', async () => {
-			const testloginUrl = '/api/user/login';
-			const testloginRes = await $.post(testloginUrl)
-				.send({ email: 'test@repo.com', password: '123456' });
+	const aloneUrl = '/api/user';
+	describe('POST /api/user - 登录', () => {
+		test('参数验证: email', async () => {
+			const res = await $pure.post(aloneUrl);
+			expect(res.body.msg).toBe('邮箱地址必填');
+		});
 
-			const targetUrl = '/api/user/current';
-			const targetWait = $.get(`${targetUrl}?delay=3`);
+		test('参数验证: password', async () => {
+			const res = await $pure.post(aloneUrl).send({ email: "test@repo.com" });
+			expect(res.body.msg).toBe('密码必填');
+		});
 
-			const compareRes = await $.get(`${targetUrl}`, testloginRes.body.data.token);
-			const targetRes = await targetWait;
-
-			expect(compareRes.body.data.email).toBe('test@repo.com');
-			expect(targetRes.body.data.email).toBe('admin@repo.com');
+		test('登录', async () => {
+			const res = await $pure.post(aloneUrl).send(param);
+			expect(res.body.msg).toBe('ok');
 		});
 	});
 
-	describe('change-password', () => {
-		const url = '/api/user/change-password';
-		test('参数验证', async () => {
-			const res = await $.post(url).send();
-
-			expect(res.body.msg).toBe('旧密码不能为空');
-		});
-
-		test('新密码不能为空', async () => {
-			const res = await $.post(url)
-				.send({
-					oldPassword: '123456',
-				});
-
-			expect(res.body.msg).toBe('新密码不能为空');
-		});
-
-		test('旧密码错误', async () => {
-			const res = await $.post(url)
-				.send({
-					oldPassword: '1234567',
-					password: '123456',
-				});
-
-			expect(res.body.msg).toBe('旧密码错误');
-		});
-
-		test('修改成功', async () => {
-			const res = await $.post(url)
-				.send({
-					oldPassword: '123456',
-					password: '1234566',
-				});
-
-			// 上一步名字被变更
-			expect(res.body.data.username).toBe('admin2');
+	describe('DELETE /api/user - 退出登录', () => {
+		test('登录', async () => {
+			const res = await $.delete(aloneUrl);
+			expect(res.body.msg).toBe('已清除登录信息');
 		});
 	});
 
-	describe('authority', () => {
-		const url = '/api/user/list';
-		test('无权限拒绝', async () => {
-			const res = await $pure.get(url);
-			expect(res.body.msg).toBe('无权限访问');
+	describe('PUT /api/user', () => {
+		test('修改当前用户信息: username', async () => {
+			const currentParam = { email: 'put-current@repo.com', password: '123456' };
+			const { id, token } = await Support.createUser(currentParam);
+
+			const usernameParam = { username: 'put-current-test' };
+			const usernameRes = await $.put(aloneUrl, token).send(usernameParam);
+			expect(usernameRes.body.data.username).toBe(usernameParam.username);
 		});
 
-		test('非法Token', async () => {
-			const res = await $pure.get(url, 'token123455');
-			expect(res.body.msg).toBe('非法Token');
+		test('修改当前用户密码: 旧密码为空', async () => {
+			const currentParam = { email: 'put-current1@repo.com', password: '123456' };
+			const { id, token } = await Support.createUser(currentParam);
+
+			const passwordParam = { password: '1245678' };
+			const passwordRes = await $.put(aloneUrl, token).send(passwordParam);
+			expect(passwordRes.body.msg).toBe('旧密码不能为空');
 		});
 
-		let token1 = jwt.sign({ id: 1 }, '4zpbhkp2n49', { expiresIn: '7 days' });
-		test('非法ID', async () => {
-			const res = await $pure.get(url, token1);
-			expect(res.body.msg).toBe('非法ID');
+		test('修改当前用户密码: 旧密码错误', async () => {
+			const currentParam = { email: 'put-current2@repo.com', password: '123456' };
+			const { id, token } = await Support.createUser(currentParam);
+
+			const passwordParam = { password: '1245678', oldPassword: '222' };
+			const passwordRes = await $.put(aloneUrl, token).send(passwordParam);
+			expect(passwordRes.body.msg).toBe('旧密码错误');
 		});
 
-		let token2 = jwt.sign({ id: "1" }, '4zpbhkp2n49', { expiresIn: '7 days' });
-		test('用户不存在', async () => {
-			const res = await $pure.get(url, token2);
-			expect(res.body.msg).toBe('用户不存在');
-		});
+		test('修改当前用户密码', async () => {
+			const currentParam = { email: 'put-current3@repo.com', password: '123456' };
+			const { id, token } = await Support.createUser(currentParam);
 
-		// 前一步修改了密码
-		test('登录凭证变更，请重新登录', async () => {
-			const res = await $.get(url);
-			expect(res.body.msg).toBe('登录凭证变更，请重新登录');
+			const passwordParam = { password: '1245678', oldPassword: currentParam.password };
+			const passwordRes = await $.put(aloneUrl, token).send(passwordParam);
+			expect(passwordRes.body.msg).toBe('ok');
+		});
+	});
+
+	describe('GET /api/user', () => {
+		test('获取当前用户信息', async () => {
+			const res = await $.get(aloneUrl);
+			expect(res.body.data.username).toBe(user.username);
 		});
 	});
 });

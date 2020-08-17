@@ -36,13 +36,13 @@ export class Support {
 	static async login(email: string, password: string) {
 		const { app } = await Support.ready();
 		return request(app.listen())
-			.post('/api/user/login')
+			.post('/api/user')
 			.send({ email, password })
 			.then((res: any) => {
 				if (res.body.status === 1) {
 					return res.body.data;
 				} else {
-					console.error('/api/user/login:', res.body);
+					console.error('/api/user:', res.body);
 					return Promise.reject();
 				}
 			});
@@ -51,16 +51,17 @@ export class Support {
 	/**
 	 * 创建一个登录的账户
 	 */
-	static async createUser(email = 'admin@repo.com', password = '123456') {
+	static async createUser(opts?: any) {
+		const { email = 'admin@repo.com', password = '123456' } = opts || {};
 		const { app } = await Support.ready();
 		return request(app.listen())
-			.post('/api/user/reg')
+			.post('/api/users')
 			.send({ email, password })
 			.then((res) => {
 				if (res.body.status === 1) {
 					return this.login(email, password);
 				} else {
-					console.error('/api/user/reg:', res.body);
+					console.error('/api/users:', res.body);
 					return Promise.reject();
 				}
 			});

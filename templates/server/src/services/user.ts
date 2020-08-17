@@ -1,4 +1,4 @@
-import { getMongoRepository, MongoRepository, ObjectID, ObjectIdColumn } from 'typeorm';
+import { getMongoRepository, MongoRepository, ObjectID, ObjectIdColumn, DeleteResult } from 'typeorm';
 import { Service } from 'typedi';
 import { validate, ValidationError } from "class-validator";
 import { User } from '../entities';
@@ -18,24 +18,71 @@ export class UserService {
 		}
 	}
 
+	private async _checkEmail(email?: string) {
+		if (email) {
+			const checkRepeat = await this.checkRepeat(email);
+			if (checkRepeat > 0) {
+				throw new Error('该email已经注册');
+			}
+		}
+	}
+
 	async create(body: User): Promise<User> {
 		const { email, username, password } = body;
-		const user = new User();
+		await this._checkEmail(email);
 
+		const user = new User();
 		user.email = email;
 		user.username = username || (email && email.substr(0, email.indexOf('@')));
 
-		// 加密密码和salt, TODO： 使用sha1或者bcryptjs
-		user.password = password;
-		user.passsalt = password;
+		if (password) {
+			// 加密密码和salt, TODO： 使用sha1或者bcryptjs
+			user.password = password;
+			user.passsalt = password;
+		}
 
 		await this._check(user);
 		return this.repository.save(user);
 	}
 
-	async update(newData: User): Promise<User> {
+	async update(user: User, newData: User): Promise<User> {
+		const { email, username, password } = newData;
+		let hasChanged = false;
+
+		if (email) {
+			await this._checkEmail(email);
+			user.email = email;
+			hasChanged = true;
+		}
+
+		if (username) {
+			user.username = username;
+			hasChanged = true;
+		}
+
+		if (password) {
+			// 加密密码和salt, TODO： 使用sha1或者bcryptjs
+			user.password = password;
+			user.passsalt = password;
+			hasChanged = true;
+		}
+
+		if (!hasChanged) {
+			throw new Error('请输入需要修改的相关字段');
+		}
+
 		await this._check(newData);
-		return this.repository.save(newData);
+		return this.repository.save(user);
+	}
+
+	async delete(id: string): Promise<DeleteResult> {
+		const user = await this.repository.findOne(id);
+
+		if (!user) {
+			throw new Error('当前用户不存在或已删除')
+		}
+
+		return this.repository.delete(id);
 	}
 
 	checkRepeat(email: string): Promise<number> {

@@ -21,7 +21,6 @@ export class OutputInterceptor implements InterceptorInterface {
 			output.status = 0;
 			output.msg = result;
 		}
-
 		return JSON.stringify(output);
 	}
 }

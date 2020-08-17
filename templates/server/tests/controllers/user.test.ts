@@ -1,13 +1,9 @@
-import request, { Test } from 'supertest';
-import { Response } from 'koa';
-import jwt from 'jsonwebtoken';
 import { Support, RequestMethod } from '../support';
-import { User } from '../../src/entities';
 
 describe('routers: users/user', () => {
 	let $: RequestMethod;
 	let $pure: RequestMethod;
-	let user: User;
+	let user: any;
 	beforeAll(async (done) => {
 		let { db, app } = await Support.ready();
 

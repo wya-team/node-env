@@ -1,11 +1,9 @@
-import request from 'supertest';
 import { Support, RequestMethod } from '../support';
-import { User } from '../../src/entities';
 
 describe('routers: test', () => {
 	let $: RequestMethod;
 	let $pure: RequestMethod;
-	let user: User;
+	let user: any;
 	beforeAll(async (done) => {
 		let { db, app } = await Support.ready();
 

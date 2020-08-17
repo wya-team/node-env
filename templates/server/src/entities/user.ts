@@ -30,18 +30,12 @@ export class User extends BaseEntity {
 	@Column()
 	passsalt: string;
 
+	@Column()
+	role: string; // 用于管理角色权限
+
 	@CreateDateColumn()
 	createdAt: Date;
 
 	@UpdateDateColumn()
 	updatedAt: Date;
-
-	// 不写入到数据库
-	token?: string;
-	// TODO：考虑用构造器 new User
-	// constructor(body: User) {
-	// 	super();
-	// 	this.email = body.email;
-	// 	this.username = body.username;
-	// }
 }

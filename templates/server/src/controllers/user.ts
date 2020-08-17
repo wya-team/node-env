@@ -58,14 +58,14 @@ export class UserController {
 	 * TODO: 同上
 	 */
 	@Get("/users/:id")
-	async getOne(@Param("id") id: string): Promise<any> {
+	async getOne(@Ctx() ctx: Context, @Param("id") id: string): Promise<any> {
 		let user = await this.userService.findById(id);
 
 		return pick(user, ft.user);
 	}
 
 	@Post('/users')
-	async createOne(@Body() body: User): Promise<any> {
+	async createOne(@Ctx() ctx: Context, @Body() body: User): Promise<any> {
 		const user: User = await this.userService.create(body);
 
 		return pick(user, ft.user);
@@ -75,7 +75,7 @@ export class UserController {
 	 * TODO: 同上
 	 */
 	@Put('/users/:id')
-	async updateOne(@Param("id") id: string, @Body() body: any): Promise<any> {
+	async updateOne(@Ctx() ctx: Context, @Param("id") id: string, @Body() body: any): Promise<any> {
 		let user: User = await this.userService.findById(id);
 
 		user = await this.userService.update(user, body);
@@ -87,7 +87,7 @@ export class UserController {
 	 * TODO: 同上
 	 */
 	@Delete('/users/:id')
-	async deleteOne(@Param("id") id: string): Promise<any> {
+	async deleteOne(@Ctx() ctx: Context, @Param("id") id: string): Promise<any> {
 		const user = await this.userService.delete(id);
 
 		return pick(user, ft.user);
@@ -127,7 +127,6 @@ export class UserController {
 	async updateCurrent(@Ctx() ctx: Context, @Body() body: any): Promise<any> {
 		const { user } = ctx.state;
 
-		// 修改密码时需要额外校正
 		const { oldPassword, password } = body;
 		if (password) {
 			if (!oldPassword) {
@@ -139,7 +138,7 @@ export class UserController {
 			}
 		}
 
-		return this.updateOne(user.id, body);
+		return this.updateOne(ctx, user.id, body);
 	}
 
 	/**

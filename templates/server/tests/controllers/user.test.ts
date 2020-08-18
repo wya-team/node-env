@@ -51,7 +51,7 @@ describe('routers: users/user', () => {
 			const { id, token } = await Support.createUser(currentParam);
 
 			const res = await $.delete(`${url}/${id}`, token);
-			expect(res.body.msg).toBe('ok');
+			expect(res.body.status).toBe(1);
 		});
 
 		test('删除操作 - 重复删除', async () => {
@@ -59,7 +59,7 @@ describe('routers: users/user', () => {
 			const { id, token } = await Support.createUser(currentParam);
 
 			const res = await $.delete(`${url}/${id}`, token);
-			expect(res.body.msg).toBe('ok');
+			expect(res.body.status).toBe(1);
 
 			const errRes = await $.delete(`${url}/${id}`);
 			expect(errRes.body.msg).toBe('当前用户不存在或已删除');
@@ -94,7 +94,7 @@ describe('routers: users/user', () => {
 			// 修改密码
 			const passwordParam = { password: '1245678' };
 			const passwordRes = await $.put(`${url}/${id}`, token).send(passwordParam);
-			expect(passwordRes.body.msg).toBe('ok');
+			expect(passwordRes.body.status).toBe(1);
 		});
 	});
 
@@ -124,7 +124,7 @@ describe('routers: users/user', () => {
 
 		test('登录', async () => {
 			const res = await $pure.post(aloneUrl).send(param);
-			expect(res.body.msg).toBe('ok');
+			expect(res.body.status).toBe(1);
 		});
 	});
 
@@ -169,7 +169,7 @@ describe('routers: users/user', () => {
 
 			const passwordParam = { password: '1245678', oldPassword: currentParam.password };
 			const passwordRes = await $.put(aloneUrl, token).send(passwordParam);
-			expect(passwordRes.body.msg).toBe('ok');
+			expect(passwordRes.body.status).toBe(1);
 		});
 	});
 

@@ -110,6 +110,11 @@ export class UserController {
 		let { email, password } = body;
 
 		let user = await this.userService.findByEmail(email);
+
+		if (!user) {
+			return '当前账号未注册';
+		}
+
 		if (password !== user.password) {
 			return '密码错误';
 		}

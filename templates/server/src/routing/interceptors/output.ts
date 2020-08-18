@@ -16,7 +16,7 @@ export class OutputInterceptor implements InterceptorInterface {
 					output.msg = result.msg,
 					result.data && (output.data = result.data)
 				)
-				: (output.msg = 'ok', output.data = result);
+				: (output.data = result);
 		} else {
 			output.status = 0;
 			output.msg = result;

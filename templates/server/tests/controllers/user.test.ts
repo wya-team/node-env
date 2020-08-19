@@ -122,6 +122,11 @@ describe('routers: users/user', () => {
 			expect(res.body.msg).toBe('密码必填');
 		});
 
+		test('当前账号未注册', async () => {
+			const res = await $.post(aloneUrl).send({ email: 'notreg@repo.com', password: '123456' }).expect(200);
+			expect(res.body.msg).toBe('当前账号未注册');
+		});
+
 		test('登录', async () => {
 			const res = await $pure.post(aloneUrl).send(param);
 			expect(res.body.status).toBe(1);

@@ -1,30 +1,37 @@
 <template>
-	<vc-form 
-		ref="form" 
-		:model="formValidate" 
-		:rules="ruleValidate" 
+	<vc-form
+		ref="form"
+		:model="formValidate"
+		:rules="ruleValidate"
 		:label-width="120"
-		style="height: 100vh" 
+		style="height: 100vh"
 		position="left"
 		class="g-flex-cc g-fd-c"
 	>
-		<vc-form-item label="用户名： " prop="user">
-			<vc-input v-model="formValidate.user" placeholder="请输入用户名" />
+		<vc-form-item prop="email" label="邮箱：">
+			<vc-input
+				v-model="formValidate.email"
+				placeholder="邮箱，没有会自动注册哦"
+			/>
 		</vc-form-item>
-		<vc-form-item label="密码： " prop="password">
-			<vc-input v-model="formValidate.password" placeholder="请输入密码" />
+		<vc-form-item prop="password" label="密码：">
+			<vc-input
+				v-model="formValidate.password"
+				type="password"
+				placeholder="密码"
+			/>
 		</vc-form-item>
 		<div @click="handleLogin">
 			登录
-		</div> 	
+		</div>
 	</vc-form>
 </template>
 
 <script>
 import { mapState } from 'vuex';
-import { Message } from '@wya/vc';
+import { Message, Modal } from '@wya/vc';
 import { Storage } from '@utils/utils';
-import { createLoginAuth } from '@routers/hooks';
+import { Global } from '@routers/_global';
 
 export default {
 	name: 'login',
@@ -33,49 +40,91 @@ export default {
 	data() {
 		return {
 			formValidate: {
-				user: '',
-				password: '',
+				email: '',
+				password: ''
 			},
 			ruleValidate: {
-				user: [
-					{ required: true, message: '请输入用户名' }
+				email: [
+					{
+						type: 'email',
+						message: "请输入正确的邮箱"
+					},
+					{
+						required: true,
+						message: "请输入邮箱"
+					}
 				],
 				password: [
-					{ required: true, message: '请输入密码' }
-				],
-			}
+					{
+						required: true,
+						message: '请输入密码'
+					}
+				]
+			},
 		};
 	},
 	computed: {
 		...mapState(['loginMain'])
 	},
 	created() {
-		
+
 	},
 	methods: {
 		async handleLogin() {
+			await this.$refs.form.validate();
+			const { password, email } = this.formValidate;
 			try {
-				await this.$refs.form.validate();
-				this.request({
-					url: 'LOGIN_MAIN_POST',
-					type: 'POST',
-					localData: {
-						status: 1,
-						data: {
-							...this.formValidate
+				await this._login();
+			} catch (err) {
+				return new Promise((resolve, reject) => {
+					if (err.msg !== '当前账号未注册') return reject(err);
+					const content = (h) => (
+						<p style="color: #495060">
+							该用户不存在, 是否根据当前输入的用户名和密码注册用户?注：请妥善保管好你的密码: ({password})，目前无法提供找回密码的通道。
+						</p>
+					);
+					Modal.warning({
+						title: "提示",
+						content,
+						onOk: async (e, done) => {
+							try {
+								await this._register();
+								await this._login();
+								Message.success(`登录成功 - username: ${username}`);
+								done();
+								resolve();
+							} catch (errors) {
+								reject(errors);
+							}
 						}
-					}
-				}).then((res) => {
-					Message.success(`登录成功 - userName: ${this.loginMain.user}`);
-
-					createLoginAuth(res.data);
-				}).catch((res) => {
-					console.log(res);
+					});
 				});
-			} catch (e) {
-				console.log(e);
 			}
-		}
+		},
+		_login() {
+			const { password, email } = this.formValidate;
+			return this.request({
+				url: 'LOGIN_MAIN_POST',
+				type: "POST",
+				param: {
+					password,
+					email
+				}
+			}).then((res) => {
+				this.$global.createLoginAuth({ token: res.data.token }, true);
+			});
+		},
+		_register() {
+			const { password, email } = this.formValidate;
+			return this.request({
+				url: 'LOGIN_REGISTER_POST',
+				type: "POST",
+				param: {
+					password,
+					email
+				}
+			});
+		},
 	},
 };
 </script>

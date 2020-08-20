@@ -8,7 +8,7 @@
 import createHttpClient from '@wya/http';
 import { Storage } from '@wya/utils';
 import { Message } from '@wya/vc';
-import { clearLoginAuth } from '@routers/hooks';
+import { Global } from '@routers/_global';
 import API_ROOT from '@stores/apis/root';
 import { TOKEN_KEY } from '../constants/constants';
 
@@ -26,7 +26,7 @@ const loadedFn = () => {
 const otherFn = ({ response }) => {
 	switch (response.status) {
 		case -1:
-			clearLoginAuth();
+			Global.clearLoginAuth();
 			break;
 		default:
 			break;
@@ -38,9 +38,9 @@ const beforeFn = ({ options }) => {
 };
 const afterFn = ({ options, response }) => {
 	let {
-		successTip = true, 
-		errorTip = true, 
-		errorMsg = response.msg, 
+		successTip = true,
+		errorTip = true,
+		errorMsg = response.msg,
 		successMsg = response.msg,
 		method
 	} = options;

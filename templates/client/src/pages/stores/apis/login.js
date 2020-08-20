@@ -1,4 +1,6 @@
 const api = {
-	LOGIN_MAIN_POST: '/human/login/login.json'
+	LOGIN_MAIN_POST: '/api/user',
+	LOGIN_MAIN_DELETE: '/api/user',
+	LOGIN_REGISTER_POST: '/api/users',
 };
 export default api;

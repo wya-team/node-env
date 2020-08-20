@@ -3,13 +3,13 @@
  */
 import Vue from 'vue';
 import { Device, Storage, Cookie } from '@wya/utils';
-import { DEBUG, TOKEN_KEY, IN_BROWSER } from '../constants/constants';
+import { DEBUG, TOKEN_KEY, IN_BROWSER, PRE_ROUTER_URL } from '../constants/constants';
 
 class GlobalManager {
 	constructor() {
 		// 版本号
 		this.version = '1.0';
-		this.setVersion();
+		this._setVersion();
 
 		// GUID
 		this.GUID = '';
@@ -42,15 +42,71 @@ class GlobalManager {
 		if (IN_BROWSER) {
 			this.GUID = location.host.split(".")[0];
 			this.landingPath = location.pathname;
+			this.landingRoute = `${location.pathname}${location.search}`;
 			this.landingPage = `${location.origin}${location.pathname}${location.search}`;
 			this.height = window.innerHeight;
 			this.width = window.innerWidth;
 		}
 	}
 
-	setVersion() {
+	// 服务端采用http only时需要使用Storage
+	isLoggedIn() {
+		return IN_BROWSER
+			? Cookie.get(TOKEN_KEY) || Storage.get(TOKEN_KEY)
+			: (this.serverCookies && this.serverCookies.get(TOKEN_KEY));
+	}
+
+	_setVersion() {
 		Storage.setVersion(this.version);
 		Cookie.setVersion(this.version);
+	}
+
+	setCookies(cookies) {
+		this.serverCookies = cookies;
+	}
+
+	/**
+	 * @public
+	 * 设置登录状态
+	 */
+	createLoginAuth = (user, replace = true, opts = {}) => {
+		this.updateUser(user);
+
+		if (typeof window === 'undefined') {
+			return;
+		}
+
+		window.routesManager && window.routesManager.reset();
+
+		// 首页或者一开始记录的页面
+		let path = this.landingRoute.replace(new RegExp(PRE_ROUTER_URL), '/');
+		path = /^\/login/.test(path) ? '/' : path;
+
+		replace && window.app && window.app.$router.replace(path);
+	}
+
+	/**
+	 * @public
+	 * 清除登录状态
+	 */
+	clearLoginAuth = (opts = {}) => {
+		if (typeof window === 'undefined') {
+			return;
+		}
+
+		this.clearUser();
+		Vc.instance.clearAll();
+		serviceManager.clear();
+
+		// 重置页面
+		this.landingPage = `/`;
+
+		/**
+		 * 清理缓存后，跳转至首页
+		 */
+		window.app
+			&& window.app.$route.path !== '/login'
+			&& window.app.$router.replace('/login');
 	}
 
 	updateUser(override = {}, opts = {}) {
@@ -77,7 +133,7 @@ class GlobalManager {
 
 		Storage.remove(TOKEN_KEY);
 	}
-	
+
 }
 
 

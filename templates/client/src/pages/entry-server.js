@@ -1,23 +1,20 @@
 import { createApp } from './main';
+import { Global } from './routers/_global';
 
 const isDev = process.env.NODE_ENV !== 'production';
-
-let serverCookies; // eslint-disable-line
-
-export { serverCookies };
 export default context => {
 	return new Promise((resolve, reject) => {
-		const s = isDev && Date.now();
-		const { app, store, router } = createApp();
 		const { url, cookies } = context;
-		const { fullPath } = router.resolve(url).route;
+		Global.setCookies(cookies);
 
-		serverCookies = cookies;
+		const start = isDev && Date.now();
+		const { app, store, router } = createApp();
+		const { fullPath } = router.resolve(url).route;
 		// 同样也可以处理为reject
-		fullPath !== url 
+		fullPath !== url
 			? router.push(fullPath)
 			: router.push(url);
-		
+
 		router.onReady(() => {
 			const matchedComponents = router.getMatchedComponents();
 			if (!matchedComponents.length) {
@@ -33,7 +30,7 @@ export default context => {
 					});
 				})
 			).then(() => {
-				isDev && console.log(`data pre-fetch: ${Date.now() - s}ms`);
+				isDev && console.log(`data pre-fetch: ${Date.now() - start}ms`);
 				context.state = store.state;
 				resolve(app);
 			}).catch(reject);

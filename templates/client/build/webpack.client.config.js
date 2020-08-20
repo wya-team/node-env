@@ -43,7 +43,7 @@ const config = merge(base, {
 	plugins: [
 		// strip comments in Vue code
 		new webpack.DefinePlugin({
-			'__DEV__': process.env.NODE_ENV === 'production',
+			'__DEV__': process.env.NODE_ENV !== 'production',
 			'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
 			'process.env.VUE_ENV': '"client"'
 		}),

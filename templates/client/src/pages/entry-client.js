@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import { createApp } from './main';
+// import { Global } from './routers/_global';
 
 const { app, store, router, routesManager } = createApp();
 

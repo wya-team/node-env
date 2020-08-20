@@ -17,9 +17,9 @@ module.exports = merge(base, {
 
 	/**
 	 * 处理相关提示
-	 * It is recommended to externalize dependencies 
+	 * It is recommended to externalize dependencies
 	 * in the server build for better build performance.
-	 * 
+	 *
 	 * webpack.base.config.js 已设置 alias config
 	 */
 	externals: nodeExternals({
@@ -30,7 +30,7 @@ module.exports = merge(base, {
 	}),
 	plugins: [
 		new webpack.DefinePlugin({
-			'__DEV__': process.env.NODE_ENV === 'production',
+			'__DEV__': process.env.NODE_ENV !== 'production',
 			'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
 			'process.env.VUE_ENV': '"server"'
 		}),

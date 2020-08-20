@@ -2,7 +2,7 @@
 <template>
 	<div class="v-layout-extra g-flex-ac">
 		<img :src="user.avatar" class="g-imgc-32 g-m-r-10">
-		<vc-dropdown 
+		<vc-dropdown
 			placement="bottom"
 			trigger="click"
 			@click="handleOperate"
@@ -14,17 +14,17 @@
 				<vc-dropdown-item name="set">
 					<div class="line">
 						个人账户设置
-					</div>	 
+					</div>
 				</vc-dropdown-item>
 				<vc-dropdown-item name="change">
 					<div class="line">
 						修改密码
-					</div>	 
+					</div>
 				</vc-dropdown-item>
 				<vc-dropdown-item name="logout">
 					<div class="line no-border">
 						退出登录
-					</div>	 
+					</div>
 				</vc-dropdown-item>
 			</vc-dropdown-menu>
 		</vc-dropdown>
@@ -51,11 +51,19 @@ export default {
 
 	},
 	watch: {
-		
+
 	},
 	methods: {
-		handleOperate(name) {
-			
+		async handleOperate(name) {
+			if (name === 'logout') {
+				await this.request({
+					type: 'DELETE',
+					url: 'LOGIN_MAIN_DELETE',
+					param: {}
+				});
+
+				this.$global.clearLoginAuth();
+			}
 		},
 	},
 };

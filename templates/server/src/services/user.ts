@@ -79,7 +79,7 @@ export class UserService {
 		const user = await this.repository.findOne(id);
 
 		if (!user) {
-			throw new Error('当前用户不存在或已删除')
+			throw new Error('当前用户不存在或已删除');
 		}
 
 		return this.repository.delete(id);

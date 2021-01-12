@@ -24,7 +24,8 @@ export default context => {
 			// 做一个约定，组件中含asyncData的生命周期为服务端发起请求拿数据
 			Promise.all(
 				matchedComponents.map(({ asyncData }) => {
-					return asyncData && asyncData({
+					return asyncData && asyncData.call(matchedComponents, {
+						app,
 						store,
 						route: router.currentRoute
 					});

@@ -20,6 +20,10 @@ import { Logger, XRequestId, JWT, IpFilter } from './src/middlewares';
 import { Clean } from './src/schedules';
 
 const rootPath = process.cwd();
+
+// 如果不是项目根目录，dist静态资源重定向会造成问题
+console.log(`check: ${rootPath}`);
+
 const resolve = (...args: string[]): string => {
 	let fullpath = path.resolve(rootPath, ...args);
 	process.env.NODE_ENV !== 'test' && console.log(`check: ${fullpath}`);
@@ -63,7 +67,7 @@ const appReady = (async (): Promise<Koa> => {
 	app
 		.use(IpFilter.init())
 		.use(favicon(resolve('./public/images/icon.png')))
-		.use(serve('/dist', '../client/dist'))
+		.use(serve('/dist', './client/dist'))
 		.use(serve('/public', './public'))
 		.use(serve('/upload', config.get('upload.dir'), true))
 		.use(Logger.init())

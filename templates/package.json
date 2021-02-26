@@ -26,7 +26,9 @@
     "build:server": "yarn workspace @wya/repo-client run build:server",
     "start:docker": "cd ./assist/docker && docker-compose up --detach",
     "remove:docker": "cd ./assist/docker && docker-compose down",
-    "clean:docker": "rm -rf ./assist/docker/.db/* && npm run remove:docker"
+    "clean:docker": "rm -rf ./assist/docker/.db/* && npm run remove:docker",
+    "pm2:dev": "yarn workspace @wya/repo-server run pm2:dev",
+    "pm2:prod": "yarn workspace @wya/repo-server run pm2:prod"
   },
   "scripts-info": {
     "start": "纯线上环境模拟, 记得要先build, 且client也执行了build",

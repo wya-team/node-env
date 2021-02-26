@@ -15,7 +15,9 @@
     "lint:watch": "npm run lint -- --fix --watch",
     "test": "ts-node tests/gen.ts && cross-env NODE_ENV=test jest --no-cache --runInBand --forceExit --detectOpenHandles",
     "test:watch": "npm run test -- --watch",
-    "test:cover": "npm run test -- --coverage"
+    "test:cover": "npm run test -- --coverage",
+    "pm2:dev": "cross-env NODE_ENV=production NODE_PORT=3001 pm2 start dist/app.js --update-env --name repo-dev",
+    "pm2:prod": "cross-env NODE_ENV=production NODE_PORT=3002 pm2 start dist/app.js --update-env --name repo-prod"
   },
   "scripts-info": {
     "start": "纯线上环境模拟, 记得要先build, 且client也执行了build",

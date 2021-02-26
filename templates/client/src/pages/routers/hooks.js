@@ -1,4 +1,15 @@
 import { Global } from './_global';
+import { IN_BROWSER } from '../constants/index';
+
+// '/' 首页的情况下不重置路由
+if (IN_BROWSER) {
+	let original = window.history.replaceState;
+	window.history.replaceState = (...args) => {
+		if (window.location.pathname !== '/') {
+			original.apply(window.history, args);
+		}
+	};
+}
 
 class HooksManager {
 	/**

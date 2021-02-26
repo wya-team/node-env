@@ -61,8 +61,19 @@ class GlobalManager {
 		Cookie.setVersion(this.version);
 	}
 
-	setCookies(cookies) {
-		this.serverCookies = cookies;
+	setConfigByServer(ctx) {
+		this.serverCookies = ctx.cookies;
+		this.landingPage = ctx.headers.referer;
+
+		// nginx服务器重定向, nginx需要配置，http去兼容作用
+		this.GUID = (ctx.headers.host || '')
+			.replace(/https?:\/\//, '')
+			.split(".")[0];
+
+		// 兼容老数据
+		if (Device.reset) {
+			this.device = Device.reset({ userAgent: ctx.headers['user-agent'] });
+		}
 	}
 
 	/**

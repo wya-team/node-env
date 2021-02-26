@@ -5,8 +5,8 @@ const isDev = process.env.NODE_ENV !== 'production';
 export default context => {
 	return new Promise((resolve, reject) => {
 		const { url, cookies } = context;
-		Global.setCookies(cookies);
-
+		Global.setConfigByServer(context);
+		
 		const start = isDev && Date.now();
 		const { app, store, router } = createApp();
 		const { fullPath } = router.resolve(url).route;

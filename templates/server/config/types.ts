@@ -45,7 +45,7 @@ export interface Upload {
  * 配置项
  */
 export interface Config {
-	port?: number;
+	port?: number | string;
 	host?: string;
 	db?: DBConfig;
 	jwt?: JWT;

@@ -99,13 +99,17 @@ export class View {
 
 	// 操作ctx.body, 不适用next
 	render() {
+		const getInjectInfo = require('@wya/repo-client/src/static/dynamic-inject'); // eslint-disable-line
+
 		return async (ctx: Context) => {
 			try {
 				ctx.set('Content-Type', 'text/html');
 
 				ctx.body = await this.getHTML({
 					url: ctx.url,
-					cookies: new Cookies(ctx.headers.cookie)
+					cookies: new Cookies(ctx.headers.cookie),
+					headers: ctx.headers,
+					inject: getInjectInfo(ctx) || {}
 				});
 
 			} catch (e) {

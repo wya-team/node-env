@@ -68,7 +68,7 @@ const appReady = (async (): Promise<Koa> => {
 		.use(IpFilter.init())
 		.use(favicon(resolve('./public/images/icon.png')))
 		.use(serve('/dist', './client/dist'))
-		.use(serve('/public', './public'))
+		.use(serve('/public', './server/public'))
 		.use(serve('/upload', config.get('upload.dir'), true))
 		.use(Logger.init())
 		.use(XRequestId.init())
